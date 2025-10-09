@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentoria Odisseia - Ranking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Mentoria Odisseia</h1>
+
+    <div class="container">
+        <section class="form-section">
+            <h2>Registrar Desempenho</h2>
+            <form id="registro-form">
+                <label for="aluno-select">Aluno:</label>
+                <select id="aluno-select" name="aluno_id" required>
+                    <option value="">Carregando...</option>
+                </select>
+
+                <label for="questoes-input">Quantidade de Questões:</label>
+                <input type="number" id="questoes-input" name="quantidade" min="1" required>
+
+                <label for="acertos-input">Número de Acertos:</label>
+                <input type="number" id="acertos-input" name="acertos" min="0" required>
+
+                <button type="submit">Adicionar Registro</button>
+            </form>
+        </section>
+
+        <section class="ranking-section">
+            <h2>Rankings</h2>
+            
+            <h3>🏆 Top 5 - Quantidade de Questões</h3>
+            <ol id="ranking-quantidade"></ol>
+
+            <h3>📊 Top 5 - % de Acerto</h3>
+            <ol id="ranking-percentual"></ol>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

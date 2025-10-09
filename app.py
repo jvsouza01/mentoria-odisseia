@@ -78,3 +78,32 @@ def get_rankings():
         'quantidade': [dict(row) for row in ranking_quantidade],
         'percentual': [dict(row) for row in ranking_percentual]
     })
+
+# ... (seu código anterior, incluindo a definição da classe RegistrosQuestoes) ...
+
+# --- ROTA SECRETA PARA INICIAR O BANCO DE DADOS ---
+# ATENÇÃO: USAR APENAS UMA VEZ E DEPOIS REMOVER POR SEGURANÇA
+@app.route('/_iniciar_banco_de_dados_uma_vez')
+def iniciar_banco():
+    try:
+        # Cria todas as tabelas definidas nos modelos
+        db.create_all()
+        
+        # Verifica se já existem alunos para não adicionar duplicatas
+        if not Alunos.query.first():
+            aluno1 = Alunos(nome='João Victor')
+            aluno2 = Alunos(nome='Maria Clara')
+            aluno3 = Alunos(nome='Pedro Henrique')
+            db.session.add_all([aluno1, aluno2, aluno3])
+            db.session.commit()
+            return "Banco de dados e alunos de exemplo criados com SUCESSO!", 200
+        else:
+            return "As tabelas já existem.", 200
+            
+    except Exception as e:
+        # Retorna uma mensagem de erro se algo der errado
+        return f"Ocorreu um erro ao criar o banco de dados: {e}", 500
+
+
+# --- ROTAS DA APLICAÇÃO ---
+# ... (o resto do seu código com @app.route('/') etc. continua aqui) ...

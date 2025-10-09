@@ -23,22 +23,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // (A função carregarRankings continua a mesma)
-    async function carregarRankings() {
+   async function carregarRankings() {
         try {
             const response = await fetch('/api/rankings');
             const rankings = await response.json();
+
+            // Limpa as listas antes de preencher
             rankingQtdList.innerHTML = '';
             rankingPercList.innerHTML = '';
+
+            // Preenche o ranking de quantidade
             rankings.quantidade.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.textContent = `${index + 1}. ${item.nome} - ${item.total} questões`;
                 rankingQtdList.appendChild(li);
             });
+
+            // Preenche o ranking de percentual (COM A CORREÇÃO)
             rankings.percentual.forEach((item, index) => {
                 const li = document.createElement('li');
-                li.textContent = `${index + 1}. ${item.nome} - ${item.percentual.toFixed(2)}%`;
+                // Adicionamos parseFloat() para converter a string em número
+                li.textContent = `${index + 1}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`;
                 rankingPercList.appendChild(li);
             });
+
         } catch (error) {
             console.error('Erro ao carregar rankings:', error);
         }

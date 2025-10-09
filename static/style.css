@@ -20,23 +20,35 @@ h1, h2, h3 {
     display: flex;
     gap: 40px;
     width: 100%;
-    max-width: 900px;
+    max-width: 1200px;
     margin-top: 20px;
+    align-items: flex-start; /* Alinha os itens no topo */
 }
 
-.form-section, .ranking-section {
+/* Coluna do formulário */
+.form-section {
     background-color: #ffffff;
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Ocupa 1 parte do espaço */
 }
 
-.form-section {
-    flex: 1;
+/* Coluna da direita que agrupa as informações */
+.info-column {
+    flex: 2; /* Ocupa 2 partes do espaço (mais larga) */
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Espaço entre os cartões de informação */
 }
 
-.ranking-section {
-    flex: 2;
+/* Estilo para TODOS os cartões de informação */
+.ranking-section,
+.recent-section {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 form {
@@ -71,11 +83,27 @@ button:hover {
     background-color: #005f73;
 }
 
-ol {
+ol, ul {
     padding-left: 20px;
 }
 
 li {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-size: 1.1em;
+    display: flex;
+    justify-content: space-between; /* Alinha o botão à direita */
+    align-items: center;
+}
+
+/* Estilo específico para o botão de apagar */
+.delete-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #e5383b;
+    border-radius: 4px;
+    margin-left: 15px;
+}
+
+.delete-btn:hover {
+    background-color: #b21e21;
 }

@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# --- CONFIGURAÇÃO DO BANCO DE DADOS ---
+# --- CONFIGURAÇÃO DO BANCO DE DADOS cfg ---
 # Pega a URL do banco de dados da variável de ambiente que vamos criar no Render
 db_url = os.environ.get("DATABASE_URL")
 # O Render usa 'postgres://', mas o SQLAlchemy espera 'postgresql://'. Fazemos a troca.

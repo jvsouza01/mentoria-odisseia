@@ -55,25 +55,39 @@ def add_registro():
 
 @app.route('/api/rankings', methods=['GET'])
 def get_rankings():
+    # Adicionamos prints para ver o que está acontecendo nos logs do Render
+    print("--- Iniciando get_rankings ---")
+    
+    conn = db.session.connection() # Usamos uma conexão para garantir que estamos na mesma sessão
+    
+    # Ranking de Quantidade
     query_qtd = text('''
         SELECT a.nome, SUM(r.quantidade_questoes) as total
         FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
         GROUP BY a.nome ORDER BY total DESC LIMIT 10
     ''')
-    ranking_quantidade = db.session.execute(query_qtd).mappings().all()
-    
+    ranking_quantidade = conn.execute(query_qtd).mappings().all()
+    print(f"Resultado do ranking de quantidade: {ranking_quantidade}")
+
+    # Ranking de Percentual
     query_perc = text('''
         SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
         FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
         GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20
         ORDER BY percentual DESC LIMIT 10
     ''')
-    ranking_percentual = db.session.execute(query_perc).mappings().all()
-
-    return jsonify({
+    ranking_percentual = conn.execute(query_perc).mappings().all()
+    print(f"Resultado do ranking de percentual: {ranking_percentual}")
+    
+    # Prepara a resposta final
+    json_response = {
         'quantidade': [dict(row) for row in ranking_quantidade],
         'percentual': [dict(row) for row in ranking_percentual]
-    })
+    }
+    print(f"JSON final a ser enviado: {json_response}")
+    print("--- Finalizando get_rankings ---")
+
+    return jsonify(json_response)
 
 # --- NOVAS ROTAS PARA GERENCIAMENTO ---
 

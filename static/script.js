@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const registroForm = document.getElementById('registro-form');
     const rankingQtdList = document.getElementById('ranking-quantidade');
     const rankingPercList = document.getElementById('ranking-percentual');
+    const ultimosLancamentosList = document.getElementById('ultimos-lancamentos');
 
-    // Função para buscar a lista de alunos da nossa API
+    // (A função carregarAlunos continua a mesma)
     async function carregarAlunos() {
         try {
             const response = await fetch('/api/alunos');
@@ -21,65 +22,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função para buscar os dados dos rankings e exibi-los na tela
+    // (A função carregarRankings continua a mesma)
     async function carregarRankings() {
         try {
             const response = await fetch('/api/rankings');
             const rankings = await response.json();
-
-            // Limpa as listas antes de preencher
             rankingQtdList.innerHTML = '';
             rankingPercList.innerHTML = '';
-
-            // Preenche o ranking de quantidade
             rankings.quantidade.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.textContent = `${index + 1}. ${item.nome} - ${item.total} questões`;
                 rankingQtdList.appendChild(li);
             });
-
-            // Preenche o ranking de percentual
             rankings.percentual.forEach((item, index) => {
                 const li = document.createElement('li');
-                // toFixed(2) para formatar com 2 casas decimais
                 li.textContent = `${index + 1}. ${item.nome} - ${item.percentual.toFixed(2)}%`;
                 rankingPercList.appendChild(li);
             });
-
         } catch (error) {
             console.error('Erro ao carregar rankings:', error);
         }
     }
+    
+    // NOVA FUNÇÃO para carregar os últimos lançamentos
+    async function carregarUltimosLancamentos() {
+        try {
+            const response = await fetch('/api/registros/recentes');
+            const registros = await response.json();
+            ultimosLancamentosList.innerHTML = ''; // Limpa a lista
 
-    // Função para lidar com o envio do formulário
+            registros.forEach(r => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ${r.aluno_nome}: ${r.acertos} acertos de ${r.questoes} questões
+                    <button class="delete-btn" data-id="${r.id}">Apagar</button>
+                `;
+                ultimosLancamentosList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar últimos lançamentos:', error);
+        }
+    }
+
+    // Função para recarregar todos os dados da página
+    async function recarregarTudo() {
+        await carregarRankings();
+        await carregarUltimosLancamentos();
+    }
+
+    // (A função de submit do formulário foi levemente ajustada)
     registroForm.addEventListener('submit', async (event) => {
-        // Previne o recarregamento padrão da página
         event.preventDefault();
-
         const formData = new FormData(registroForm);
         const dados = {
             aluno_id: formData.get('aluno_id'),
             quantidade: formData.get('quantidade'),
             acertos: formData.get('acertos')
         };
-        
-        // Validação simples
         if (parseInt(dados.acertos) > parseInt(dados.quantidade)) {
             alert('O número de acertos não pode ser maior que a quantidade de questões.');
             return;
         }
-
         try {
             const response = await fetch('/api/registros', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dados)
             });
-
             if (response.ok) {
-                // Se o registro foi salvo com sucesso
-                registroForm.reset(); // Limpa o formulário
-                await carregarRankings(); // Atualiza os rankings na tela
+                registroForm.reset();
+                await recarregarTudo(); // Recarrega rankings e lançamentos
             } else {
                 alert('Falha ao salvar o registro.');
             }
@@ -88,7 +100,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // NOVA LÓGICA para escutar cliques nos botões de apagar
+    ultimosLancamentosList.addEventListener('click', async (event) => {
+        // Verifica se o que foi clicado foi um botão com a classe 'delete-btn'
+        if (event.target.classList.contains('delete-btn')) {
+            const registroId = event.target.dataset.id; // Pega o ID do registro
+            
+            // Pede confirmação antes de apagar
+            if (confirm('Tem certeza que deseja apagar este registro?')) {
+                try {
+                    const response = await fetch(`/api/registros/${registroId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        await recarregarTudo(); // Se apagou, recarrega tudo
+                    } else {
+                        alert('Falha ao apagar o registro.');
+                    }
+                } catch (error) {
+                    console.error('Erro ao apagar registro:', error);
+                }
+            }
+        }
+    });
+
     // Carrega os dados iniciais quando a página é aberta
     carregarAlunos();
-    carregarRankings();
+    recarregarTudo();
 });

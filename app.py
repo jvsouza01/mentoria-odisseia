@@ -86,24 +86,36 @@ def get_rankings():
 @app.route('/_iniciar_banco_de_dados_uma_vez')
 def iniciar_banco():
     try:
-        # Cria todas as tabelas definidas nos modelos
+        # Garante que todas as tabelas existam
         db.create_all()
         
-        # Verifica se já existem alunos para não adicionar duplicatas
-        if not Alunos.query.first():
-            aluno1 = Alunos(nome='João Victor')
-            aluno2 = Alunos(nome='Maria Clara')
-            aluno3 = Alunos(nome='Pedro Henrique')
-            db.session.add_all([aluno1, aluno2, aluno3])
-            db.session.commit()
-            return "Banco de dados e alunos de exemplo criados com SUCESSO!", 200
-        else:
-            return "As tabelas já existem.", 200
+        # Lista completa de alunos que devem existir no banco
+        lista_de_alunos = [
+            'Vithor', 'Andressa', 'Mariana', 'Rodrigo', 'Dhomini', 
+            'Isaac', 'Marco Antonio', 'Leonardo', 'Nelson', 'Santiago'
+        ]
+        
+        alunos_adicionados = 0
+        
+        # Itera sobre a lista de nomes
+        for nome_aluno in lista_de_alunos:
+            # Verifica se o aluno já existe no banco de dados
+            existe = Alunos.query.filter_by(nome=nome_aluno).first()
+            
+            # Se não existe, adiciona o novo aluno
+            if not existe:
+                novo_aluno = Alunos(nome=nome_aluno)
+                db.session.add(novo_aluno)
+                alunos_adicionados += 1
+        
+        # Salva todas as novas adições no banco de uma vez
+        db.session.commit()
+        
+        return f"Verificação concluída. {alunos_adicionados} novos alunos foram adicionados. O banco agora está atualizado!", 200
             
     except Exception as e:
         # Retorna uma mensagem de erro se algo der errado
-        return f"Ocorreu um erro ao criar o banco de dados: {e}", 500
-
+        return f"Ocorreu um erro: {e}", 500
 
 # --- ROTAS DA APLICAÇÃO ---
 # ... (o resto do seu código com @app.route('/') etc. continua aqui) ...

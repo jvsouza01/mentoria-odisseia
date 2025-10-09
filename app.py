@@ -59,7 +59,7 @@ def get_rankings():
     query_qtd = text('''
         SELECT a.nome, SUM(r.quantidade_questoes) as total
         FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
-        GROUP BY a.nome ORDER BY total DESC LIMIT 5
+        GROUP BY a.nome ORDER BY total DESC LIMIT 10
     ''')
     # Usamos .all() para compatibilidade com a nova versão do SQLAlchemy
     ranking_quantidade = db.session.execute(query_qtd).mappings().all()
@@ -69,7 +69,7 @@ def get_rankings():
         SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
         FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
         GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20
-        ORDER BY percentual DESC LIMIT 5
+        ORDER BY percentual DESC LIMIT 10
     ''')
     # Usamos .mappings().all() para obter uma lista de dicionários
     ranking_percentual = db.session.execute(query_perc).mappings().all()

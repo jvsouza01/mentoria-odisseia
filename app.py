@@ -119,3 +119,24 @@ def iniciar_banco():
 
 # --- ROTAS DA APLICAÇÃO ---
 # ... (o resto do seu código com @app.route('/') etc. continua aqui) ...
+# --- ROTA SECRETA PARA LIMPAR ALUNOS DE TESTE ---
+# ATENÇÃO: USAR APENAS UMA VEZ E DEPOIS REMOVER POR SEGURANÇA
+@app.route('/_limpar_alunos_de_teste')
+def limpar_alunos_teste():
+    try:
+        # Nomes exatos dos alunos que queremos apagar
+        nomes_para_apagar = ['João Victor', 'Maria Clara', 'Pedro Henrique']
+        
+        # Encontra todos os alunos cujos nomes estão na lista e os apaga
+        alunos_apagados = Alunos.query.filter(Alunos.nome.in_(nomes_para_apagar)).delete(synchronize_session=False)
+        
+        # Salva a alteração (a exclusão) no banco de dados
+        db.session.commit()
+        
+        if alunos_apagados > 0:
+            return f"{alunos_apagados} aluno(s) de teste foram removidos com sucesso!", 200
+        else:
+            return "Nenhum aluno de teste encontrado para remover.", 200
+
+    except Exception as e:
+        return f"Ocorreu um erro ao limpar os alunos: {e}", 500

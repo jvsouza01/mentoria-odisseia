@@ -154,3 +154,44 @@ def get_rankings_completos():
         'quantidade': [dict(row) for row in ranking_quantidade],
         'percentual': [dict(row) for row in ranking_percentual]
     })
+# --- ROTA PARA CONFIGURAR O BANCO DE DADOS ---
+@app.route('/_iniciar_banco_de_dados_uma_vez')
+def iniciar_banco():
+    try:
+        # Garante que todas as tabelas existam
+        db.create_all()
+        
+        # LISTA COMPLETA E ATUALIZADA DE ALUNOS
+        lista_de_alunos = [
+            # Alunos antigos
+            'Vithor', 'Andressa', 'Mariana', 'Rodrigo', 'Dhomini', 
+            'Isaac', 'Marco Antônio', 'Leonardo', 'Nelson', 'Santiago',
+            # Novos alunos
+            'Alan vitor', 'Dann Silva', 'Davy', 'Dias', 'Eduardo', 
+            'Eliaquim', 'Ell Souza', 'Ezequias', 'Flavia Andrade', 'Hélio', 
+            'Ingrid', 'Jonathan Estevam', 'Jovino', 'JP', 'Liu', 
+            'Marcela', 'Marcos Vinicius', 'Matheus Silva', 'MV', 'Silva', 
+            'V.S', 'Vinicius Felipe', 'Yan'
+        ]
+        
+        alunos_adicionados = 0
+        
+        # Itera sobre a lista de nomes
+        for nome_aluno in lista_de_alunos:
+            # Verifica se o aluno já existe no banco de dados
+            existe = Alunos.query.filter_by(nome=nome_aluno).first()
+            
+            # Se não existe, adiciona o novo aluno
+            if not existe:
+                novo_aluno = Alunos(nome=nome_aluno)
+                db.session.add(novo_aluno)
+                alunos_adicionados += 1
+        
+        # Salva todas as novas adições no banco de uma vez
+        db.session.commit()
+        
+        return f"Verificação concluída. {alunos_adicionados} novos alunos foram adicionados. O banco agora está atualizado!", 200
+            
+    except Exception as e:
+        # Retorna uma mensagem de erro se algo der errado
+        return f"Ocorreu um erro: {e}", 500

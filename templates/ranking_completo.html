@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Completo - Mentoria Odisseia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Mentoria Odisseia</h1>
+    <h2>Ranking Completo</h2>
+
+    <div class="container">
+        <section class="ranking-section">
+            <h3>🏆 Quantidade de Questões (Completo)</h3>
+            <ol id="ranking-quantidade-completo"></ol>
+        </section>
+        
+        <section class="ranking-section">
+            <h3>📊 % de Acerto (Completo)</h3>
+            <ol id="ranking-percentual-completo"></ol>
+        </section>
+    </div>
+
+    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
+
+    <script src="{{ url_for('static', filename='ranking_completo.js') }}"></script>
+</body>
+</html>

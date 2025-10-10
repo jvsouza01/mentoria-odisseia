@@ -119,3 +119,38 @@ def delete_registro(registro_id):
     db.session.commit()
     
     return jsonify({'status': 'sucesso', 'mensagem': 'Registro apagado.'})
+
+# --- ROTAS PARA A PÁGINA DE RANKING COMPLETO ---
+
+# Rota para servir a nova página HTML
+@app.route('/ranking-completo')
+def ranking_completo():
+    return render_template('ranking_completo.html')
+
+# Rota de API para fornecer os dados dos rankings completos
+@app.route('/api/rankings/completo', methods=['GET'])
+def get_rankings_completos():
+    conn = db.session.connection()
+    
+    # Ranking de Quantidade (sem LIMIT)
+    query_qtd = text('''
+        SELECT a.nome, SUM(r.quantidade_questoes) as total
+        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
+        GROUP BY a.nome ORDER BY total DESC
+    ''')
+    ranking_quantidade = conn.execute(query_qtd).mappings().all()
+    
+    # Ranking de Percentual (sem LIMIT e sem o HAVING, para que todos apareçam)
+    query_perc = text('''
+        SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
+        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
+        GROUP BY a.nome
+        HAVING SUM(r.quantidade_questoes) > 0
+        ORDER BY percentual DESC
+    ''')
+    ranking_percentual = conn.execute(query_perc).mappings().all()
+
+    return jsonify({
+        'quantidade': [dict(row) for row in ranking_quantidade],
+        'percentual': [dict(row) for row in ranking_percentual]
+    })

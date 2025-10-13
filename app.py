@@ -47,8 +47,18 @@ def index():
 # (As rotas de alunos e de adicionar/apagar registros não mudam)
 @app.route('/api/alunos', methods=['GET'])
 def get_alunos():
-    alunos = Alunos.query.order_by(Alunos.nome).all()
-    return jsonify([{'id': aluno.id, 'nome': aluno.nome} for aluno in alunos])
+    print("--- 🔍 Buscando alunos no banco de dados... ---")
+    try:
+        alunos = Alunos.query.order_by(Alunos.nome).all()
+        print(f"--- ✅ Encontrados {len(alunos)} alunos. ---")
+        
+        lista_para_enviar = [{'id': aluno.id, 'nome': aluno.nome} for aluno in alunos]
+        print(f"--- 📦 Enviando JSON: {lista_para_enviar} ---")
+        
+        return jsonify(lista_para_enviar)
+    except Exception as e:
+        print(f"--- ❌ ERRO AO BUSCAR ALUNOS: {e} ---")
+        return jsonify({"erro": "Falha ao buscar alunos"}), 500
 
 @app.route('/api/registros', methods=['POST'])
 def add_registro():

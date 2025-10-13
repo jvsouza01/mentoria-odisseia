@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# --- CONFIGURAÇÃO DO BANCO DE DADOS (não muda) ---
+# --- CONFIGURAÇÃO DO BANCO DE DADOS ---
 db_url = os.environ.get("DATABASE_URL")
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# --- MODELOS DO BANCO DE DADOS (não muda) ---
+# --- MODELOS DO BANCO DE DADOS ---
 class Alunos(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), unique=True, nullable=False)
@@ -28,33 +28,26 @@ class RegistrosQuestoes(db.Model):
     data_registro = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     aluno = db.relationship('Alunos', backref=db.backref('registros', lazy=True))
 
-# --- FUNÇÃO HELPER PARA CALCULAR O INÍCIO DA SEMANA ---
+# --- FUNÇÃO HELPER MODIFICADA PARA O INÍCIO DA SEMANA ---
 def get_start_of_week():
+    """Calcula a data do último domingo à meia-noite."""
     today = datetime.utcnow()
-    days_since_saturday = (today.weekday() - 5 + 7) % 7
-    start_of_week = today - timedelta(days=days_since_saturday)
+    # weekday() do Python: 0=Segunda, 5=Sábado, 6=Domingo
+    # A nova lógica agora procura o último domingo (weekday == 6)
+    days_since_sunday = (today.weekday() - 6 + 7) % 7
+    start_of_week = today - timedelta(days=days_since_sunday)
     return start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
 
 # --- ROTAS DA APLICAÇÃO ---
-
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# ROTA DE ALUNOS COM DEBUG
 @app.route('/api/alunos', methods=['GET'])
 def get_alunos():
-    print("--- 🔍 Buscando alunos (PÁGINA PRINCIPAL)... ---")
-    try:
-        alunos = Alunos.query.order_by(Alunos.nome).all()
-        print(f"--- ✅ Encontrados {len(alunos)} alunos. ---")
-        lista_para_enviar = [{'id': aluno.id, 'nome': aluno.nome} for aluno in alunos]
-        return jsonify(lista_para_enviar)
-    except Exception as e:
-        print(f"--- ❌ ERRO AO BUSCAR ALUNOS: {e} ---")
-        return jsonify({"erro": "Falha ao buscar alunos"}), 500
+    alunos = Alunos.query.order_by(Alunos.nome).all()
+    return jsonify([{'id': aluno.id, 'nome': aluno.nome} for aluno in alunos])
 
-# (As rotas de adicionar/apagar registros não mudam)
 @app.route('/api/registros', methods=['POST'])
 def add_registro():
     dados = request.get_json()
@@ -76,41 +69,18 @@ def delete_registro(registro_id):
     db.session.commit()
     return jsonify({'status': 'sucesso', 'mensagem': 'Registro apagado.'})
 
-# ROTA DE RANKING SEMANAL COM DEBUG
 @app.route('/api/rankings', methods=['GET'])
 def get_rankings():
-    print("--- 📊 Iniciando get_rankings (SEMANAL) ---")
-    try:
-        start_of_week = get_start_of_week()
-        print(f"--- 🗓️ Início da semana calculado: {start_of_week} ---")
-        
-        conn = db.session.connection()
-        
-        query_qtd = text('''
-            SELECT a.nome, SUM(r.quantidade_questoes) as total
-            FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
-            WHERE r.data_registro >= :start_date
-            GROUP BY a.nome ORDER BY total DESC LIMIT 10
-        ''')
-        ranking_quantidade = conn.execute(query_qtd, {'start_date': start_of_week}).mappings().all()
-        print(f"--- 📈 Resultado do ranking de quantidade SEMANAL: {ranking_quantidade} ---")
+    start_of_week = get_start_of_week()
+    conn = db.session.connection()
+    
+    query_qtd = text('SELECT a.nome, SUM(r.quantidade_questoes) as total FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro >= :start_date GROUP BY a.nome ORDER BY total DESC LIMIT 10')
+    ranking_quantidade = conn.execute(query_qtd, {'start_date': start_of_week}).mappings().all()
+    
+    query_perc = text('SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro >= :start_date GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20 ORDER BY percentual DESC LIMIT 10')
+    ranking_percentual = conn.execute(query_perc, {'start_date': start_of_week}).mappings().all()
 
-        query_perc = text('''
-            SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
-            FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
-            WHERE r.data_registro >= :start_date
-            GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20
-            ORDER BY percentual DESC LIMIT 10
-        ''')
-        ranking_percentual = conn.execute(query_perc, {'start_date': start_of_week}).mappings().all()
-        print(f"--- 🎯 Resultado do ranking de percentual SEMANAL: {ranking_percentual} ---")
-
-        json_response = {'quantidade': [dict(row) for row in ranking_quantidade], 'percentual': [dict(row) for row in ranking_percentual]}
-        print("--- ✅ Finalizando get_rankings (SEMANAL) com sucesso ---")
-        return jsonify(json_response)
-    except Exception as e:
-        print(f"--- ❌ ERRO EM get_rankings (SEMANAL): {e} ---")
-        return jsonify({"erro": "Falha ao buscar rankings semanais"}), 500
+    return jsonify({'quantidade': [dict(row) for row in ranking_quantidade], 'percentual': [dict(row) for row in ranking_percentual]})
 
 # --- ROTAS PARA A PÁGINA DE RANKING GERAL (ALL-TIME) ---
 @app.route('/ranking-geral')

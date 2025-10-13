@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranking Completo - Mentoria Odisseia</title>
+    <title>Ranking Geral - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Mentoria Odisseia</h1>
-    <h2>Ranking Completo</h2>
+    <h2>Ranking Geral (All-Time)</h2>
 
     <div class="container">
         <section class="ranking-section">
-            <h3>🏆 Quantidade de Questões (Completo)</h3>
+            <h3>🏆 Quantidade de Questões (Geral)</h3>
             <ol id="ranking-quantidade-completo"></ol>
         </section>
-        
+
         <section class="ranking-section">
-            <h3>📊 % de Acerto (Completo)</h3>
+            <h3>📊 % de Acerto (Geral)</h3>
             <ol id="ranking-percentual-completo"></ol>
         </section>
     </div>
 
-    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
+    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para o Ranking da Semana</a>
 
-    <script src="{{ url_for('static', filename='ranking_completo.js') }}"></script>
+    <script src="{{ url_for('static', filename='ranking_geral.js') }}"></script>
 </body>
 </html>

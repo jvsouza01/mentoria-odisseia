@@ -30,10 +30,7 @@ class RegistrosQuestoes(db.Model):
 
 # --- FUNÇÃO HELPER PARA CALCULAR O INÍCIO DA SEMANA ---
 def get_start_of_week():
-    """Calcula a data do último sábado à meia-noite."""
     today = datetime.utcnow()
-    # O dia da semana do Python é 0=Segunda, 5=Sábado, 6=Domingo
-    # Queremos voltar para o último sábado (weekday == 5)
     days_since_saturday = (today.weekday() - 5 + 7) % 7
     start_of_week = today - timedelta(days=days_since_saturday)
     return start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -44,30 +41,24 @@ def get_start_of_week():
 def index():
     return render_template('index.html')
 
-# (As rotas de alunos e de adicionar/apagar registros não mudam)
+# ROTA DE ALUNOS COM DEBUG
 @app.route('/api/alunos', methods=['GET'])
 def get_alunos():
-    print("--- 🔍 Buscando alunos no banco de dados... ---")
+    print("--- 🔍 Buscando alunos (PÁGINA PRINCIPAL)... ---")
     try:
         alunos = Alunos.query.order_by(Alunos.nome).all()
         print(f"--- ✅ Encontrados {len(alunos)} alunos. ---")
-        
         lista_para_enviar = [{'id': aluno.id, 'nome': aluno.nome} for aluno in alunos]
-        print(f"--- 📦 Enviando JSON: {lista_para_enviar} ---")
-        
         return jsonify(lista_para_enviar)
     except Exception as e:
         print(f"--- ❌ ERRO AO BUSCAR ALUNOS: {e} ---")
         return jsonify({"erro": "Falha ao buscar alunos"}), 500
 
+# (As rotas de adicionar/apagar registros não mudam)
 @app.route('/api/registros', methods=['POST'])
 def add_registro():
     dados = request.get_json()
-    novo_registro = RegistrosQuestoes(
-        aluno_id=dados['aluno_id'],
-        quantidade_questoes=dados['quantidade'],
-        acertos=dados['acertos']
-    )
+    novo_registro = RegistrosQuestoes(aluno_id=dados['aluno_id'], quantidade_questoes=dados['quantidade'], acertos=dados['acertos'])
     db.session.add(novo_registro)
     db.session.commit()
     return jsonify({'status': 'sucesso'}), 201
@@ -75,14 +66,7 @@ def add_registro():
 @app.route('/api/registros/recentes', methods=['GET'])
 def get_registros_recentes():
     registros = RegistrosQuestoes.query.order_by(RegistrosQuestoes.id.desc()).limit(10).all()
-    lista_registros = []
-    for r in registros:
-        lista_registros.append({
-            'id': r.id,
-            'aluno_nome': r.aluno.nome,
-            'questoes': r.quantidade_questoes,
-            'acertos': r.acertos
-        })
+    lista_registros = [{'id': r.id, 'aluno_nome': r.aluno.nome, 'questoes': r.quantidade_questoes, 'acertos': r.acertos} for r in registros]
     return jsonify(lista_registros)
 
 @app.route('/api/registros/<int:registro_id>', methods=['DELETE'])
@@ -92,66 +76,52 @@ def delete_registro(registro_id):
     db.session.commit()
     return jsonify({'status': 'sucesso', 'mensagem': 'Registro apagado.'})
 
-
-# ROTA MODIFICADA: Agora mostra o ranking DA SEMANA
+# ROTA DE RANKING SEMANAL COM DEBUG
 @app.route('/api/rankings', methods=['GET'])
 def get_rankings():
-    start_of_week = get_start_of_week()
-    conn = db.session.connection()
-    
-    # Adicionamos a condição "WHERE r.data_registro >= :start_date"
-    query_qtd = text('''
-        SELECT a.nome, SUM(r.quantidade_questoes) as total
-        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
-        WHERE r.data_registro >= :start_date
-        GROUP BY a.nome ORDER BY total DESC LIMIT 10
-    ''')
-    ranking_quantidade = conn.execute(query_qtd, {'start_date': start_of_week}).mappings().all()
-    
-    query_perc = text('''
-        SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
-        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
-        WHERE r.data_registro >= :start_date
-        GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20
-        ORDER BY percentual DESC LIMIT 10
-    ''')
-    ranking_percentual = conn.execute(query_perc, {'start_date': start_of_week}).mappings().all()
+    print("--- 📊 Iniciando get_rankings (SEMANAL) ---")
+    try:
+        start_of_week = get_start_of_week()
+        print(f"--- 🗓️ Início da semana calculado: {start_of_week} ---")
+        
+        conn = db.session.connection()
+        
+        query_qtd = text('''
+            SELECT a.nome, SUM(r.quantidade_questoes) as total
+            FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
+            WHERE r.data_registro >= :start_date
+            GROUP BY a.nome ORDER BY total DESC LIMIT 10
+        ''')
+        ranking_quantidade = conn.execute(query_qtd, {'start_date': start_of_week}).mappings().all()
+        print(f"--- 📈 Resultado do ranking de quantidade SEMANAL: {ranking_quantidade} ---")
 
-    return jsonify({
-        'quantidade': [dict(row) for row in ranking_quantidade],
-        'percentual': [dict(row) for row in ranking_percentual]
-    })
+        query_perc = text('''
+            SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
+            FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
+            WHERE r.data_registro >= :start_date
+            GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20
+            ORDER BY percentual DESC LIMIT 10
+        ''')
+        ranking_percentual = conn.execute(query_perc, {'start_date': start_of_week}).mappings().all()
+        print(f"--- 🎯 Resultado do ranking de percentual SEMANAL: {ranking_percentual} ---")
 
+        json_response = {'quantidade': [dict(row) for row in ranking_quantidade], 'percentual': [dict(row) for row in ranking_percentual]}
+        print("--- ✅ Finalizando get_rankings (SEMANAL) com sucesso ---")
+        return jsonify(json_response)
+    except Exception as e:
+        print(f"--- ❌ ERRO EM get_rankings (SEMANAL): {e} ---")
+        return jsonify({"erro": "Falha ao buscar rankings semanais"}), 500
 
 # --- ROTAS PARA A PÁGINA DE RANKING GERAL (ALL-TIME) ---
-
-# Renomeamos a rota para refletir que é o ranking geral
 @app.route('/ranking-geral')
 def ranking_geral():
     return render_template('ranking_geral.html')
 
-# Renomeamos a API para refletir que são os dados gerais
 @app.route('/api/rankings/geral', methods=['GET'])
 def get_rankings_gerais():
     conn = db.session.connection()
-    
-    # Esta é a consulta original, sem filtro de data
-    query_qtd = text('''
-        SELECT a.nome, SUM(r.quantidade_questoes) as total
-        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
-        GROUP BY a.nome ORDER BY total DESC
-    ''')
+    query_qtd = text('SELECT a.nome, SUM(r.quantidade_questoes) as total FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id GROUP BY a.nome ORDER BY total DESC')
     ranking_quantidade = conn.execute(query_qtd).mappings().all()
-    
-    query_perc = text('''
-        SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
-        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
-        GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 0
-        ORDER BY percentual DESC
-    ''')
+    query_perc = text('SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 0 ORDER BY percentual DESC')
     ranking_percentual = conn.execute(query_perc).mappings().all()
-
-    return jsonify({
-        'quantidade': [dict(row) for row in ranking_quantidade],
-        'percentual': [dict(row) for row in ranking_percentual]
-    })
+    return jsonify({'quantidade': [dict(row) for row in ranking_quantidade], 'percentual': [dict(row) for row in ranking_percentual]})

@@ -192,3 +192,27 @@ def add_simulado():
     db.session.commit()
     
     return jsonify({'status': 'sucesso'}), 201
+
+@app.route('/api/resultados', methods=['POST'])
+def add_resultado():
+    """Adiciona a nota de um aluno em um simulado."""
+    dados = request.get_json()
+    
+    # Validação
+    if not all(k in dados for k in ['aluno_id', 'simulado_id', 'nota']):
+        return jsonify({'status': 'erro', 'mensagem': 'Dados incompletos.'}), 400
+
+    # Verifica se já não existe um resultado para este aluno neste simulado
+    existe = ResultadosSimulados.query.filter_by(aluno_id=dados['aluno_id'], simulado_id=dados['simulado_id']).first()
+    if existe:
+        return jsonify({'status': 'erro', 'mensagem': 'Este aluno já possui uma nota para este simulado.'}), 409
+
+    novo_resultado = ResultadosSimulados(
+        aluno_id=dados['aluno_id'],
+        simulado_id=dados['simulado_id'],
+        nota=dados['nota']
+    )
+    db.session.add(novo_resultado)
+    db.session.commit()
+    
+    return jsonify({'status': 'sucesso'}), 201

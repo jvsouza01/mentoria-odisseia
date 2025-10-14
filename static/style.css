@@ -149,3 +149,31 @@ li:last-child {
 .delete-btn:hover {
     background-color: #c82333;
 }
+/* ======== ESTILOS DA NAVEGAÇÃO PRINCIPAL ======== */
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 30px; /* Aumenta o espaço antes do conteúdo principal */
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.nav-button {
+    background-color: var(--card-dark);
+    color: var(--primary-green);
+    padding: 10px 20px;
+    border: 1px solid var(--primary-green);
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.nav-button:hover {
+    background-color: var(--primary-green);
+    color: var(--bg-dark); /* Texto fica escuro ao passar o mouse */
+}

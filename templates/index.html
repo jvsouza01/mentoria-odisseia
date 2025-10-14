@@ -9,54 +9,28 @@
 <body>
     <h1>Mentoria Odisseia</h1>
 
+    <nav class="main-nav">
+        <a href="/ranking-geral" class="nav-button">Ranking Geral (All-Time)</a>
+        <a href="/gerenciar-simulados" class="nav-button">Gerenciar Simulados</a>
+    </nav>
+
     <div class="container">
         <section class="form-section">
-            <h2>Registrar Desempenho</h2>
-            <form id="registro-form">
-                <label for="aluno-select">Aluno:</label>
-                <select id="aluno-select" name="aluno_id" required>
-                    <option value="">Carregando...</option>
-                </select>
-
-                <label for="questoes-input">Quantidade de Questões:</label>
-                <input type="number" id="questoes-input" name="quantidade" min="1" required>
-
-                <label for="acertos-input">Número de Acertos:</label>
-                <input type="number" id="acertos-input" name="acertos" min="0" required>
-
-                <button type="submit">Adicionar Registro</button>
-            </form>
-        </section>
-
-        <div class="info-column">
-           
-
-           <section class="ranking-section">
-    <h2>Ranking da Semana</h2>
-    <section class="ranking-section">
-    <h2>Ranking da Semana</h2>
-    <p>
-        <a href="/ranking-geral">Ver Ranking Geral (All-Time)</a> | 
-        <a href="/gerenciar-simulados">Gerenciar Simulados</a>
-    </p>
-
-    
-
-    <h3>🏆 Top 10 - Quantidade (Semana)</h3>
-    <ol id="ranking-quantidade"></ol>
-
-    <h3>📊 Top 10 - % de Acerto (Semana)</h3>
-    <ol id="ranking-percentual"></ol>
-</section>
-
-            
-
-             <section class="recent-section">
-                <h3>Últimos Lançamentos (Cuidado pra não apagar o errado)</h3>
-                <ul id="ultimos-lancamentos">
-                    </ul>
             </section>
 
+        <div class="info-column">
+            <section class="ranking-section">
+                <h2>Ranking da Semana</h2>
+                
+                <h3>🏆 Top 10 - Quantidade (Semana)</h3>
+                <ol id="ranking-quantidade"></ol>
+
+                <h3>📊 Top 10 - % de Acerto (Semana)</h3>
+                <ol id="ranking-percentual"></ol>
+            </section>
+            
+            <section class="recent-section">
+                </section>
         </div>
     </div>
 

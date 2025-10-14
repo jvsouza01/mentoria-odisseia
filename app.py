@@ -153,3 +153,42 @@ def add_empresa():
     db.session.commit()
     
     return jsonify({'status': 'sucesso', 'empresa': {'id': nova_empresa.id, 'nome': nova_empresa.nome}}), 201
+
+@app.route('/api/simulados', methods=['GET'])
+def get_simulados():
+    """Retorna uma lista de todos os simulados cadastrados."""
+    # O .join() otimiza a busca, trazendo o nome da empresa junto
+    simulados = db.session.query(Simulados, Empresas.nome).join(Empresas).order_by(Simulados.data_realizacao.desc()).all()
+    
+    lista_simulados = []
+    for simulado, empresa_nome in simulados:
+        nome_display = f"Nº {simulado.numero}" if simulado.numero else simulado.nome_especifico
+        lista_simulados.append({
+            'id': simulado.id,
+            'nome_display': f"{empresa_nome} - {nome_display} ({simulado.categoria})",
+            'data': simulado.data_realizacao.strftime('%d/%m/%Y')
+        })
+    return jsonify(lista_simulados)
+
+@app.route('/api/simulados', methods=['POST'])
+def add_simulado():
+    """Adiciona um novo simulado."""
+    dados = request.get_json()
+    
+    # Validação dos dados recebidos
+    if not all(k in dados for k in ['empresa_id', 'categoria', 'data_realizacao']):
+        return jsonify({'status': 'erro', 'mensagem': 'Dados incompletos.'}), 400
+    if not dados.get('numero') and not dados.get('nome_especifico'):
+        return jsonify({'status': 'erro', 'mensagem': 'É preciso fornecer o número ou um nome específico.'}), 400
+
+    novo_simulado = Simulados(
+        empresa_id=dados['empresa_id'],
+        numero=dados.get('numero'),
+        nome_especifico=dados.get('nome_especifico'),
+        categoria=dados['categoria'],
+        data_realizacao=datetime.strptime(dados['data_realizacao'], '%Y-%m-%d').date()
+    )
+    db.session.add(novo_simulado)
+    db.session.commit()
+    
+    return jsonify({'status': 'sucesso'}), 201

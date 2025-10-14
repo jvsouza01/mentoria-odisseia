@@ -1,10 +1,23 @@
-/* Importa uma fonte mais agradável do Google Fonts */
+/* Importa a fonte Roboto do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
+/* ======== PALETA DE CORES (DARK MODE) ======== */
+:root {
+    --bg-dark: #121212;         /* Fundo principal bem escuro */
+    --card-dark: #1e1e1e;       /* Fundo dos "cartões" */
+    --primary-green: #20c997;   /* Verde principal para botões e destaques */
+    --green-hover: #1ba97f;     /* Verde mais escuro para o hover do mouse */
+    --text-primary: #e0e0e0;    /* Cor do texto principal (cinza claro) */
+    --text-headings: #ffffff;   /* Cor dos títulos (branco) */
+    --border-color: #333333;    /* Cor das bordas sutis */
+    --input-bg: #2a2a2a;        /* Fundo dos campos de formulário */
+}
+
+/* ======== ESTILOS GERAIS ======== */
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
     margin: 0;
     padding: 20px;
     display: flex;
@@ -13,44 +26,53 @@ body {
 }
 
 h1, h2, h3 {
-    color: #005f73;
+    color: var(--text-headings);
+    border-left: 4px solid var(--primary-green);
+    padding-left: 10px;
 }
 
+a {
+    color: var(--primary-green);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--green-hover);
+}
+
+/* ======== LAYOUT E CONTAINERS ======== */
 .container {
     display: flex;
     gap: 40px;
     width: 100%;
     max-width: 1200px;
     margin-top: 20px;
-    align-items: flex-start; /* Alinha os itens no topo */
+    align-items: flex-start;
 }
 
-/* Coluna do formulário */
 .form-section {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    flex: 1; /* Ocupa 1 parte do espaço */
+    flex: 1;
 }
 
-/* Coluna da direita que agrupa as informações */
 .info-column {
-    flex: 2; /* Ocupa 2 partes do espaço (mais larga) */
+    flex: 2;
     display: flex;
     flex-direction: column;
-    gap: 30px; /* Espaço entre os cartões de informação */
+    gap: 30px;
 }
 
-/* Estilo para TODOS os cartões de informação */
+/* Estilo para TODOS os "cartões" */
+.form-section,
 .ranking-section,
 .recent-section {
-    background-color: #ffffff;
+    background-color: var(--card-dark);
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
+/* ======== FORMULÁRIOS ======== */
 form {
     display: flex;
     flex-direction: column;
@@ -59,19 +81,28 @@ form {
 
 label {
     font-weight: bold;
+    color: var(--text-headings);
 }
 
 input, select {
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 12px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 16px;
 }
 
-button {
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-green);
+}
+
+button[type="submit"] {
     padding: 12px;
-    background-color: #0a9396;
-    color: white;
+    background-color: var(--primary-green);
+    color: var(--bg-dark);
+    font-weight: bold;
     border: none;
     border-radius: 4px;
     font-size: 16px;
@@ -79,31 +110,42 @@ button {
     transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: #005f73;
+button[type="submit"]:hover {
+    background-color: var(--green-hover);
 }
 
+/* ======== LISTAS E RANKINGS ======== */
 ol, ul {
     padding-left: 20px;
+    list-style: none; /* Remove os números e bolinhas padrão */
 }
 
 li {
     margin-bottom: 12px;
     font-size: 1.1em;
     display: flex;
-    justify-content: space-between; /* Alinha o botão à direita */
+    justify-content: space-between;
     align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-/* Estilo específico para o botão de apagar */
+li:last-child {
+    border-bottom: none;
+}
+
 .delete-btn {
     padding: 5px 10px;
     font-size: 12px;
-    background-color: #e5383b;
+    background-color: #dc3545; /* Vermelho para ação de apagar */
+    color: white;
+    border: none;
     border-radius: 4px;
     margin-left: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .delete-btn:hover {
-    background-color: #b21e21;
+    background-color: #c82333;
 }

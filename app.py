@@ -240,3 +240,32 @@ def get_ranking_por_simulado(simulado_id):
     ranking = [{'aluno_nome': nome, 'nota': nota} for nota, nome in resultados]
     
     return jsonify(ranking)
+
+@app.route('/api/resultados/recentes', methods=['GET'])
+def get_resultados_recentes():
+    """Retorna uma lista das 15 últimas notas lançadas."""
+    resultados = ResultadosSimulados.query.order_by(ResultadosSimulados.id.desc()).limit(15).all()
+    
+    lista_resultados = []
+    for r in resultados:
+        # Monta um nome descritivo para o simulado
+        nome_simulado = f"Nº {r.simulado.numero}" if r.simulado.numero else r.simulado.nome_especifico
+        nome_display = f"{r.simulado.empresa.nome} - {nome_simulado} ({r.simulado.categoria})"
+        
+        lista_resultados.append({
+            'id': r.id,
+            'aluno_nome': r.aluno.nome,
+            'simulado_nome': nome_display,
+            'nota': r.nota
+        })
+    return jsonify(lista_resultados)
+
+@app.route('/api/resultados/<int:resultado_id>', methods=['DELETE'])
+def delete_resultado(resultado_id):
+    """Apaga uma nota de simulado específica pelo seu ID."""
+    resultado = ResultadosSimulados.query.get_or_404(resultado_id)
+    
+    db.session.delete(resultado)
+    db.session.commit()
+    
+    return jsonify({'status': 'sucesso', 'mensagem': 'Nota apagada com sucesso.'})

@@ -1,15 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Formulário de Empresas
+    // Formulários
     const formAddEmpresa = document.getElementById('form-add-empresa');
-    const inputEmpresaNome = document.getElementById('empresa-nome');
-    const listaEmpresas = document.getElementById('lista-empresas');
-
-    // Formulário de Simulados
     const formAddSimulado = document.getElementById('form-add-simulado');
-    const selectSimuladoEmpresa = document.getElementById('simulado-empresa');
-    const listaSimulados = document.getElementById('lista-simulados');
+    const formAddResultado = document.getElementById('form-add-resultado');
 
-    // Função para carregar e exibir as empresas existentes
+    // Listas de exibição
+    const listaEmpresas = document.getElementById('lista-empresas');
+    const listaSimulados = document.getElementById('lista-simulados');
+    
+    // Selects (Dropdowns)
+    const selectSimuladoEmpresa = document.getElementById('simulado-empresa');
+    const selectResultadoAluno = document.getElementById('resultado-aluno');
+    const selectResultadoSimulado = document.getElementById('resultado-simulado');
+
+    // --- FUNÇÕES DE CARREGAMENTO DE DADOS ---
+    
+    async function carregarAlunos() {
+        try {
+            const response = await fetch('/api/alunos');
+            const alunos = await response.json();
+            selectResultadoAluno.innerHTML = '<option value="">Selecione o aluno</option>';
+            alunos.forEach(aluno => {
+                const option = document.createElement('option');
+                option.value = aluno.id;
+                option.textContent = aluno.nome;
+                selectResultadoAluno.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar alunos:', error);
+            selectResultadoAluno.innerHTML = '<option value="">Erro ao carregar</option>';
+        }
+    }
+
     async function carregarEmpresas() {
         try {
             const response = await fetch('/api/empresas');
@@ -22,12 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 listaEmpresas.innerHTML = '<li>Nenhuma empresa cadastrada.</li>';
             } else {
                 empresas.forEach(empresa => {
-                    // Adiciona na lista de exibição
                     const li = document.createElement('li');
                     li.textContent = empresa.nome;
                     listaEmpresas.appendChild(li);
 
-                    // Adiciona no dropdown do formulário de simulado
                     const option = document.createElement('option');
                     option.value = empresa.id;
                     option.textContent = empresa.nome;
@@ -39,13 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função para carregar e exibir os simulados existentes
     async function carregarSimulados() {
         try {
             const response = await fetch('/api/simulados');
             const simulados = await response.json();
             
             listaSimulados.innerHTML = '';
+            selectResultadoSimulado.innerHTML = '<option value="">Selecione o simulado</option>';
+
             if (simulados.length === 0) {
                 listaSimulados.innerHTML = '<li>Nenhum simulado cadastrado.</li>';
             } else {
@@ -53,6 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const li = document.createElement('li');
                     li.textContent = `${simulado.nome_display} - ${simulado.data}`;
                     listaSimulados.appendChild(li);
+
+                    const option = document.createElement('option');
+                    option.value = simulado.id;
+                    option.textContent = simulado.nome_display;
+                    selectResultadoSimulado.appendChild(option);
                 });
             }
         } catch (error) {
@@ -60,7 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Lógica para o formulário de adicionar empresa
+    // --- LÓGICA DOS FORMULÁRIOS ---
+
     formAddEmpresa.addEventListener('submit', async (event) => {
         event.preventDefault();
         const nomeEmpresa = document.getElementById('empresa-nome').value.trim();
@@ -83,11 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Erro ao salvar empresa:', error);
-            alert('Ocorreu um erro de comunicação com o servidor.');
         }
     });
 
-    // Lógica para o formulário de adicionar simulado
     formAddSimulado.addEventListener('submit', async (event) => {
         event.preventDefault();
         const dados = {
@@ -108,18 +133,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 formAddSimulado.reset();
-                await carregarSimulados(); // Atualiza a lista de simulados na tela
+                await carregarSimulados();
                 alert('Simulado salvo com sucesso!');
             } else {
                 alert(`Erro: ${result.mensagem}`);
             }
         } catch (error) {
             console.error('Erro ao salvar simulado:', error);
-            alert('Ocorreu um erro de comunicação com o servidor.');
         }
     });
 
-    // Carrega os dados iniciais ao abrir a página
-    carregarEmpresas();
-    carregarSimulados();
+    formAddResultado.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const dados = {
+            aluno_id: document.getElementById('resultado-aluno').value,
+            simulado_id: document.getElementById('resultado-simulado').value,
+            nota: document.getElementById('resultado-nota').value
+        };
+
+        try {
+            const response = await fetch('/api/resultados', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                formAddResultado.reset();
+                alert('Nota lançada com sucesso!');
+            } else {
+                alert(`Erro: ${result.mensagem}`);
+            }
+        } catch (error) {
+            console.error('Erro ao lançar nota:', error);
+        }
+    });
+
+    // Carrega todos os dados iniciais ao abrir a página
+    function carregarTudo() {
+        carregarAlunos();
+        carregarEmpresas();
+        carregarSimulados();
+    }
+    carregarTudo();
 });

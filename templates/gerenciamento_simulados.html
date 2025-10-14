@@ -12,18 +12,6 @@
     <div class="container">
         <div class="form-section" style="flex: 2; display: flex; flex-direction: column; gap: 30px;">
             <div class="form-section">
-                <h2>Cadastrar Nova Empresa</h2>
-                <form id="form-add-empresa">
-                    </form>
-            </div>
-
-            <div class="form-section">
-                <h2>Cadastrar Novo Simulado</h2>
-                <form id="form-add-simulado">
-                    </form>
-            </div>
-            
-            <div class="form-section">
                 <h2>Lançar Nota de Aluno</h2>
                 <form id="form-add-resultado">
                     <label for="resultado-aluno">Aluno:</label>
@@ -42,6 +30,38 @@
                     <button type="submit">Lançar Nota</button>
                 </form>
             </div>
+
+            <div class="form-section">
+                <h2>Cadastrar Novo Simulado</h2>
+                <form id="form-add-simulado">
+                    <label for="simulado-empresa">Empresa:</label>
+                    <select id="simulado-empresa" required>
+                        <option value="">Carregando empresas...</option>
+                    </select>
+                    <label for="simulado-numero">Número do Simulado (opcional):</label>
+                    <input type="number" id="simulado-numero" placeholder="Ex: 5">
+                    <label for="simulado-nome">Nome Específico (opcional):</label>
+                    <input type="text" id="simulado-nome" placeholder="Ex: Simulado de Véspera">
+                    <label for="simulado-categoria">Categoria:</label>
+                    <select id="simulado-categoria" required>
+                        <option value="">Selecione...</option>
+                        <option value="Soldado">Soldado</option>
+                        <option value="Oficial">Oficial</option>
+                    </select>
+                    <label for="simulado-data">Data de Realização:</label>
+                    <input type="date" id="simulado-data" required>
+                    <button type="submit">Salvar Simulado</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h2>Cadastrar Nova Empresa</h2>
+                <form id="form-add-empresa">
+                    <label for="empresa-nome">Nome da Empresa:</label>
+                    <input type="text" id="empresa-nome" placeholder="Ex: Projeto Caveira" required>
+                    <button type="submit">Salvar Empresa</button>
+                </form>
+            </div>
         </div>
 
         <div class="info-column" style="flex: 3;">
@@ -57,7 +77,6 @@
     </div>
 
     <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
-
     <script src="{{ url_for('static', filename='gerenciamento_simulados.js') }}"></script>
 </body>
 </html>

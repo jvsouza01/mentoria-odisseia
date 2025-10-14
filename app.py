@@ -216,3 +216,27 @@ def add_resultado():
     db.session.commit()
     
     return jsonify({'status': 'sucesso'}), 201
+
+# --- ROTAS PARA A PÁGINA DE RANKING DE SIMULADOS ---
+
+@app.route('/ranking-simulados')
+def ranking_simulados():
+    """Serve a página de visualização dos rankings de simulados."""
+    return render_template('ranking_simulados.html')
+
+@app.route('/api/simulados/<int:simulado_id>/ranking', methods=['GET'])
+def get_ranking_por_simulado(simulado_id):
+    """Retorna o ranking de notas para um simulado específico."""
+    resultados = db.session.query(
+            ResultadosSimulados.nota,
+            Alunos.nome
+        ).join(Alunos).filter(
+            ResultadosSimulados.simulado_id == simulado_id
+        ).order_by(
+            ResultadosSimulados.nota.desc()
+        ).all()
+
+    # Transforma o resultado em uma lista de dicionários
+    ranking = [{'aluno_nome': nome, 'nota': nota} for nota, nome in resultados]
+    
+    return jsonify(ranking)

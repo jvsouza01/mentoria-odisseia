@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF--T">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mentoria Odisseia - Ranking</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -16,7 +16,22 @@
 
     <div class="container">
         <section class="form-section">
-            </section>
+            <h2>Registrar Desempenho</h2>
+            <form id="registro-form">
+                <label for="aluno-select">Aluno:</label>
+                <select id="aluno-select" name="aluno_id" required>
+                    <option value="">Carregando...</option>
+                </select>
+
+                <label for="questoes-input">Quantidade de Questões:</label>
+                <input type="number" id="questoes-input" name="quantidade" min="1" required>
+
+                <label for="acertos-input">Número de Acertos:</label>
+                <input type="number" id="acertos-input" name="acertos" min="0" required>
+
+                <button type="submit">Adicionar Registro</button>
+            </form>
+        </section>
 
         <div class="info-column">
             <section class="ranking-section">
@@ -30,7 +45,10 @@
             </section>
             
             <section class="recent-section">
-                </section>
+                <h3>Últimos Lançamentos (com opção de apagar)</h3>
+                <ul id="ultimos-lancamentos">
+                    </ul>
+            </section>
         </div>
     </div>
 

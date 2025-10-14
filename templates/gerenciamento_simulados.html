@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Simulados - Mentoria Odisseia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Gerenciamento de Simulados</h1>
+
+    <div class="container">
+        <section class="form-section">
+            <h2>Cadastrar Nova Empresa</h2>
+            <form id="form-add-empresa">
+                <label for="empresa-nome">Nome da Empresa:</label>
+                <input type="text" id="empresa-nome" placeholder="Ex: Projeto Caveira" required>
+                <button type="submit">Salvar Empresa</button>
+            </form>
+        </section>
+
+        <section class="info-column">
+            <div class="recent-section">
+                <h3>Empresas Cadastradas</h3>
+                <ul id="lista-empresas">
+                    <li>Carregando...</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
+
+    <script src="{{ url_for('static', filename='gerenciamento_simulados.js') }}"></script>
+</body>
+</html>

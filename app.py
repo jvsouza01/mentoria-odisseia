@@ -121,3 +121,35 @@ def get_rankings_gerais():
     query_perc = text('SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 0 ORDER BY percentual DESC')
     ranking_percentual = conn.execute(query_perc).mappings().all()
     return jsonify({'quantidade': [dict(row) for row in ranking_quantidade], 'percentual': [dict(row) for row in ranking_percentual]})
+
+# --- ROTAS PARA GERENCIAMENTO DE SIMULADOS ---
+
+@app.route('/gerenciar-simulados')
+def gerenciar_simulados():
+    """Serve a página de gerenciamento de simulados."""
+    return render_template('gerenciamento_simulados.html')
+
+@app.route('/api/empresas', methods=['GET'])
+def get_empresas():
+    """Retorna uma lista de todas as empresas cadastradas."""
+    empresas = Empresas.query.order_by(Empresas.nome).all()
+    return jsonify([{'id': e.id, 'nome': e.nome} for e in empresas])
+
+@app.route('/api/empresas', methods=['POST'])
+def add_empresa():
+    """Adiciona uma nova empresa."""
+    dados = request.get_json()
+    # Verifica se o nome foi enviado e se não está vazio
+    if 'nome' not in dados or dados['nome'].strip() == '':
+        return jsonify({'status': 'erro', 'mensagem': 'O nome da empresa é obrigatório.'}), 400
+    
+    # Verifica se a empresa já existe
+    existe = Empresas.query.filter_by(nome=dados['nome'].strip()).first()
+    if existe:
+        return jsonify({'status': 'erro', 'mensagem': 'Essa empresa já existe.'}), 409 # 409 = Conflito
+        
+    nova_empresa = Empresas(nome=dados['nome'].strip())
+    db.session.add(nova_empresa)
+    db.session.commit()
+    
+    return jsonify({'status': 'sucesso', 'empresa': {'id': nova_empresa.id, 'nome': nova_empresa.nome}}), 201

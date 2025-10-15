@@ -53,15 +53,48 @@ class ResultadosSimulados(db.Model):
 
 # --- ROTA PARA CONFIGURAR O BANCO DE DADOS ---
 # (Manteremos esta rota para criar as novas tabelas)
+# --- ROTA PARA CONFIGURAR O BANCO DE DADOS ---
 @app.route('/_iniciar_banco_de_dados_uma_vez')
 def iniciar_banco():
     try:
+        # Garante que todas as tabelas existam
         db.create_all()
-        return "Tabelas verificadas/criadas com sucesso!", 200
+        
+        # LISTA COMPLETA E ATUALIZADA DE ALUNOS (com o Rafael)
+        lista_de_alunos = [
+            'Alan vitor', 'Andressa', 'Dann Silva', 'Davy', 'Dias', 
+            'Dhomini', 'Eduardo', 'Eliaquim', 'Ell Souza', 'Ezequias', 
+            'Flavia Andrade', 'Hélio', 'Ingrid', 'Isaac', 'Jonathan Estevam', 
+            'Jovino', 'JP', 'Leonardo', 'Liu', 'Marcela', 'Marco Antônio', 
+            'Marcos Vinicius', 'Mariana', 'Matheus Silva', 'MV', 'Nelson', 
+            'Rafael', # <--- NOVO ALUNO ADICIONADO AQUI
+            'Rodrigo', 'Santiago', 'Silva', 'Vinicius Felipe', 
+            'Vithor', 'V.S', 'Yan'
+        ]
+        
+        alunos_adicionados = 0
+        
+        # Itera sobre a lista de nomes
+        for nome_aluno in lista_de_alunos:
+            # Verifica se o aluno já existe no banco de dados
+            existe = Alunos.query.filter_by(nome=nome_aluno).first()
+            
+            # Se não existe, adiciona o novo aluno
+            if not existe:
+                novo_aluno = Alunos(nome=nome_aluno)
+                db.session.add(novo_aluno)
+                alunos_adicionados += 1
+        
+        # Salva todas as novas adições no banco de uma vez
+        db.session.commit()
+        
+        return f"Verificação concluída. {alunos_adicionados} novos alunos foram adicionados. O banco agora está atualizado!", 200
+            
     except Exception as e:
-        return f"Ocorreu um erro ao criar as tabelas: {e}", 500
+        # Retorna uma mensagem de erro se algo der errado
+        return f"Ocorreu um erro: {e}", 500
 
-# (Todo o resto do seu código de rotas continua aqui, sem alterações por enquanto)
+
 # ... (função get_start_of_week, rotas /, /api/alunos, /api/registros, etc.) ...
 def get_start_of_week():
     today = datetime.utcnow()

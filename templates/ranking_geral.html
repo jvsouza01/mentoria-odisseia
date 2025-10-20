@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranking Geral - Mentoria Odisseia</title>
+    <title>Histórico de Rankings - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Mentoria Odisseia</h1>
-    <h2>Ranking Geral (All-Time)</h2>
+    <h1>Histórico de Rankings</h1>
 
-    <div class="container">
-        <section class="ranking-section">
+    <div class="container" style="flex-direction: column; align-items: center; gap: 30px;">
+
+        <section class="ranking-section" style="width: 100%; max-width: 800px;">
+            <h2>Ranking Geral (All-Time)</h2>
             <h3>🏆 Quantidade de Questões (Geral)</h3>
-            <ol id="ranking-quantidade-completo"></ol>
-        </section>
+            <ol id="ranking-quantidade-geral"></ol> <h3>📊 % de Acerto (Geral)</h3>
+            <ol id="ranking-percentual-geral"></ol> </section>
 
-        <section class="ranking-section">
-            <h3>📊 % de Acerto (Geral)</h3>
-            <ol id="ranking-percentual-completo"></ol>
+        <section class="ranking-section" style="width: 100%; max-width: 800px;">
+            <h2>Ranking da Semana Passada</h2>
+            <h3>🏆 Quantidade de Questões (Semana Passada)</h3>
+            <ol id="ranking-quantidade-passada"></ol>
+            
+            <h3>📊 % de Acerto (Semana Passada)</h3>
+            <ol id="ranking-percentual-passada"></ol>
         </section>
     </div>
 
-    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para o Ranking da Semana</a>
-
-    <script src="{{ url_for('static', filename='ranking_geral.js') }}"></script>
+    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para o Ranking da Semana</a> <script src="{{ url_for('static', filename='ranking_geral.js') }}"></script>
 </body>
 </html>

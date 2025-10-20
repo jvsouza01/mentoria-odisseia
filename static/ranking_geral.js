@@ -1,32 +1,70 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const rankingQtdList = document.getElementById('ranking-quantidade-completo');
-    const rankingPercList = document.getElementById('ranking-percentual-completo');
+    // IDs para o Ranking Geral (All-Time)
+    const rankingQtdGeral = document.getElementById('ranking-quantidade-geral');
+    const rankingPercGeral = document.getElementById('ranking-percentual-geral');
+    
+    // IDs para o Ranking da Semana Passada
+    const rankingQtdPassada = document.getElementById('ranking-quantidade-passada');
+    const rankingPercPassada = document.getElementById('ranking-percentual-passada');
 
-    async function carregarRankingsGerais() {
+    // Função para buscar o ranking GERAL (All-Time)
+    async function carregarRankingGeral() {
         try {
-            // A CORREÇÃO ESTÁ AQUI: Chamando a API com o nome novo
             const response = await fetch('/api/rankings/geral');
             const rankings = await response.json();
 
-            rankingQtdList.innerHTML = '';
-            rankingPercList.innerHTML = '';
+            rankingQtdGeral.innerHTML = '';
+            rankingPercGeral.innerHTML = '';
 
             rankings.quantidade.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.textContent = `${index + 1}. ${item.nome} - ${item.total} questões`;
-                rankingQtdList.appendChild(li);
+                rankingQtdGeral.appendChild(li);
             });
-
             rankings.percentual.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.textContent = `${index + 1}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`;
-                rankingPercList.appendChild(li);
+                rankingPercGeral.appendChild(li);
             });
-
         } catch (error) {
-            console.error('Erro ao carregar rankings gerais:', error);
+            console.error('Erro ao carregar ranking geral:', error);
         }
     }
 
-    carregarRankingsGerais();
+    // NOVA FUNÇÃO para buscar o ranking da SEMANA PASSADA
+    async function carregarRankingSemanaPassada() {
+        try {
+            const response = await fetch('/api/rankings/semana-passada');
+            const rankings = await response.json();
+
+            rankingQtdPassada.innerHTML = '';
+            rankingPercPassada.innerHTML = '';
+
+            if (rankings.quantidade.length === 0) {
+                rankingQtdPassada.innerHTML = '<li>Nenhum dado registrado na semana passada.</li>';
+            } else {
+                rankings.quantidade.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${index + 1}. ${item.nome} - ${item.total} questões`;
+                    rankingQtdPassada.appendChild(li);
+                });
+            }
+            
+            if (rankings.percentual.length === 0) {
+                rankingPercPassada.innerHTML = '<li>Nenhum dado registrado na semana passada (ou mínimo de 20q não atingido).</li>';
+            } else {
+                rankings.percentual.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${index + 1}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`;
+                    rankingPercPassada.appendChild(li);
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar ranking da semana passada:', error);
+        }
+    }
+
+    // Carrega os dois rankings quando a página é aberta
+    carregarRankingGeral();
+    carregarRankingSemanaPassada();
 });

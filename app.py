@@ -302,3 +302,45 @@ def delete_resultado(resultado_id):
     db.session.commit()
     
     return jsonify({'status': 'sucesso', 'mensagem': 'Nota apagada com sucesso.'})
+# --- ROTA PARA O RANKING DA SEMANA PASSADA ---
+
+@app.route('/api/rankings/semana-passada', methods=['GET'])
+def get_rankings_semana_passada():
+    """Calcula e retorna os rankings da semana anterior (Domingo a Sábado)."""
+    
+    # Pega o início da semana ATUAL (Domingo, 00:00)
+    start_of_current_week = get_start_of_week() 
+    
+    # O fim da semana passada é 1 segundo antes do início da semana atual
+    end_of_last_week = start_of_current_week - timedelta(seconds=1)
+    
+    # O início da semana passada é 7 dias antes do início da semana atual
+    start_of_last_week = start_of_current_week - timedelta(days=7)
+
+    conn = db.session.connection()
+    
+    # Criamos o filtro de data
+    date_filter = "WHERE r.data_registro BETWEEN :start AND :end"
+    params = {'start': start_of_last_week, 'end': end_of_last_week}
+    
+    query_qtd = text(f'''
+        SELECT a.nome, SUM(r.quantidade_questoes) as total
+        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
+        {date_filter}
+        GROUP BY a.nome ORDER BY total DESC LIMIT 20
+    ''')
+    ranking_quantidade = conn.execute(query_qtd, params).mappings().all()
+    
+    query_perc = text(f'''
+        SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual
+        FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id
+        {date_filter}
+        GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20
+        ORDER BY percentual DESC LIMIT 20
+    ''')
+    ranking_percentual = conn.execute(query_perc, params).mappings().all()
+
+    return jsonify({
+        'quantidade': [dict(row) for row in ranking_quantidade],
+        'percentual': [dict(row) for row in ranking_percentual]
+    })

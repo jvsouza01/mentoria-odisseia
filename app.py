@@ -52,8 +52,8 @@ class ResultadosSimulados(db.Model):
     simulado = db.relationship('Simulados', backref=db.backref('resultados_simulados', lazy=True)) # Alterado backref
 
 
-# --- ROTA PARA CONFIGURAR O BANCO DE DADOS ---
-# (Manteremos esta rota para criar as novas tabelas)
+
+
 # --- ROTA PARA CONFIGURAR O BANCO DE DADOS ---
 @app.route('/_iniciar_banco_de_dados_uma_vez')
 def iniciar_banco():
@@ -61,14 +61,14 @@ def iniciar_banco():
         # Garante que todas as tabelas existam
         db.create_all()
         
-        # LISTA COMPLETA E ATUALIZADA DE ALUNOS (com o Rafael)
+        # LISTA COMPLETA E ATUALIZADA DE ALUNOS 
         lista_de_alunos = [
             'Alan vitor', 'Andressa', 'Dann Silva', 'Davy', 'Dias', 
             'Dhomini', 'Eduardo', 'Eliaquim', 'Ell Souza', 'Ezequias', 
             'Flavia Andrade', 'Hélio', 'Ingrid', 'Isaac', 'Jonathan Estevam', 
             'Jovino', 'JP', 'Leonardo', 'Liu', 'Marcela', 'Marco Antônio', 
             'Marcos Vinicius', 'Mariana', 'Matheus Silva', 'MV', 'Nelson', 
-            'Rafael', # <--- NOVO ALUNO ADICIONADO AQUI
+            'Rafael', 
             'Rodrigo', 'Santiago', 'Silva', 'Vinicius Felipe', 
             'Vithor', 'V.S', 'Yan'
         ]
@@ -80,7 +80,7 @@ def iniciar_banco():
             # Verifica se o aluno já existe no banco de dados
             existe = Alunos.query.filter_by(nome=nome_aluno).first()
             
-            # Se não existe, adiciona o novo aluno
+            
             if not existe:
                 novo_aluno = Alunos(nome=nome_aluno)
                 db.session.add(novo_aluno)
@@ -92,11 +92,10 @@ def iniciar_banco():
         return f"Verificação concluída. {alunos_adicionados} novos alunos foram adicionados. O banco agora está atualizado!", 200
             
     except Exception as e:
-        # Retorna uma mensagem de erro se algo der errado
+        
         return f"Ocorreu um erro: {e}", 500
 
 
-# ... (função get_start_of_week, rotas /, /api/alunos, /api/registros, etc.) ...
 def get_start_of_week():
     today = datetime.utcnow()
     days_since_sunday = (today.weekday() - 6 + 7) % 7
@@ -191,7 +190,7 @@ def add_empresa():
 @app.route('/api/simulados', methods=['GET'])
 def get_simulados():
     """Retorna uma lista de todos os simulados cadastrados."""
-    # O .join() otimiza a busca, trazendo o nome da empresa junto
+    
     simulados = db.session.query(Simulados, Empresas.nome).join(Empresas).order_by(Simulados.data_realizacao.desc()).all()
     
     lista_simulados = []
@@ -356,19 +355,23 @@ def consulta_desempenho():
 @app.route('/api/consulta/desempenho', methods=['GET'])
 def get_consulta_desempenho():
     """Busca o desempenho de um aluno em um período específico, incluindo dados diários."""
+    print("\n--- 🕵️‍♂️ Iniciando Consulta de Desempenho ---")
     
     aluno_id = request.args.get('aluno_id')
     data_inicio_str = request.args.get('inicio')
     data_fim_str = request.args.get('fim')
+    print(f"--- Parâmetros Recebidos: aluno_id={aluno_id}, inicio={data_inicio_str}, fim={data_fim_str} ---")
 
     if not aluno_id or not data_inicio_str or not data_fim_str:
+        print("--- ⚠️ Erro: Parâmetros faltando. ---")
         return jsonify({'erro': 'Parâmetros aluno_id, inicio e fim são obrigatórios.'}), 400
 
     try:
         data_inicio = datetime.strptime(data_inicio_str + ' 00:00:00', '%Y-%m-%d %H:%M:%S')
         data_fim = datetime.strptime(data_fim_str + ' 23:59:59', '%Y-%m-%d %H:%M:%S')
+        print(f"--- 🗓️ Período de Busca Definido: De {data_inicio} até {data_fim} ---")
 
-        # --- Cálculo do Resumo Total (como antes) ---
+        # --- Cálculo do Resumo Total ---
         resumo = db.session.query(
             func.sum(RegistrosQuestoes.quantidade_questoes).label('total_questoes'),
             func.sum(RegistrosQuestoes.acertos).label('total_acertos')
@@ -377,14 +380,15 @@ def get_consulta_desempenho():
             RegistrosQuestoes.data_registro >= data_inicio,
             RegistrosQuestoes.data_registro <= data_fim
         ).first()
-
-        total_questoes = resumo.total_questoes if resumo.total_questoes else 0
-        total_acertos = resumo.total_acertos if resumo.total_acertos else 0
+        total_questoes = resumo.total_questoes if resumo and resumo.total_questoes else 0
+        total_acertos = resumo.total_acertos if resumo and resumo.total_acertos else 0
         percentual_total = (total_acertos * 100.0 / total_questoes) if total_questoes > 0 else 0
+        print(f"--- 🔢 Resumo Total Calculado: Questoes={total_questoes}, Acertos={total_acertos} ---")
 
-        # --- NOVO: Cálculo dos Dados Diários para o Gráfico ---
+        # --- Cálculo dos Dados Diários para o Gráfico ---
+        print("--- 📊 Buscando dados diários no banco... ---")
         dados_diarios_query = db.session.query(
-            func.date(RegistrosQuestoes.data_registro).label('dia'), # Agrupa pela data
+            func.date(RegistrosQuestoes.data_registro).label('dia'),
             func.sum(RegistrosQuestoes.quantidade_questoes).label('questoes_dia'),
             func.sum(RegistrosQuestoes.acertos).label('acertos_dia')
         ).filter(
@@ -392,14 +396,20 @@ def get_consulta_desempenho():
             RegistrosQuestoes.data_registro >= data_inicio,
             RegistrosQuestoes.data_registro <= data_fim
         ).group_by(
-            func.date(RegistrosQuestoes.data_registro) # Agrupa pelo dia
+            func.date(RegistrosQuestoes.data_registro)
         ).order_by(
-            func.date(RegistrosQuestoes.data_registro) # Ordena pela data
+            func.date(RegistrosQuestoes.data_registro)
         ).all()
         
-        # Formata os dados diários para enviar no JSON
+        # IMPRIMINDO O RESULTADO BRUTO DO BANCO
+        print(f"--- 📦 Resultado BRUTO da query diária (Banco): {dados_diarios_query} ---")
+
         dados_diarios_formatados = []
-        for dia_data, questoes, acertos in dados_diarios_query:
+        for row in dados_diarios_query:
+             # Acessando por índice ou label dependendo de como SQLAlchemy retorna
+            dia_data = row.dia
+            questoes = row.questoes_dia
+            acertos = row.acertos_dia
             percentual_dia = (acertos * 100.0 / questoes) if questoes > 0 else 0
             dados_diarios_formatados.append({
                 'data': dia_data.strftime('%Y-%m-%d'),
@@ -407,24 +417,27 @@ def get_consulta_desempenho():
                 'acertos': acertos,
                 'percentual': round(percentual_dia, 2)
             })
+            
+        print(f"--- ✨ Dados Diários Formatados (para JSON): {dados_diarios_formatados} ---")
 
         aluno = Alunos.query.get(aluno_id)
         nome_aluno = aluno.nome if aluno else "Aluno não encontrado"
 
+        print("--- ✅ Consulta concluída com sucesso. Enviando JSON. ---")
         return jsonify({
             'aluno_nome': nome_aluno,
             'data_inicio': data_inicio_str,
             'data_fim': data_fim_str,
-            # Resumo total
             'total_questoes': total_questoes,
             'total_acertos': total_acertos,
             'percentual_total': round(percentual_total, 2),
-            # Dados diários para o gráfico
             'dados_diarios': dados_diarios_formatados 
         })
 
     except ValueError:
+        print("--- ⚠️ Erro: Formato de data inválido. ---")
         return jsonify({'erro': 'Formato de data inválido. Use YYYY-MM-DD.'}), 400
     except Exception as e:
-        print(f"Erro na consulta: {e}")
+        print(f"--- ❌ ERRO INESPERADO na consulta: {e} ---")
+        db.session.rollback() # Importante reverter a sessão em caso de erro
         return jsonify({'erro': 'Erro ao consultar o banco de dados.'}), 500

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta Desempenho - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Consulta de Desempenho Individual</h1>
@@ -15,9 +15,7 @@
             <h2>Selecionar Período</h2>
             <form id="form-consulta">
                 <label for="consulta-aluno">Aluno:</label>
-                <select id="consulta-aluno" required>
-                    <option value="">Carregando alunos...</option>
-                </select>
+                <select id="consulta-aluno" required> <option value="">Carregando...</option> </select>
                 <label for="consulta-data-inicio">Data Início:</label>
                 <input type="date" id="consulta-data-inicio" required>
                 <label for="consulta-data-fim">Data Fim:</label>
@@ -26,14 +24,19 @@
             </form>
         </section>
 
-        <section class="info-column" style="width: 100%; max-width: 800px; margin-top: 30px;"> 
-            <div class="recent-section">
+        <section class="info-column" style="width: 100%; max-width: 1000px; margin-top: 30px;"> <div class="recent-section">
                 <h3 id="resultado-titulo">Resultado da Consulta</h3>
                 <div id="resultado-consulta" style="margin-bottom: 20px;">
                     <p>Selecione um aluno e um período acima.</p>
                 </div>
-                <div style="width: 100%; max-width: 700px; margin: auto;"> 
-                    <canvas id="graficoDesempenho"></canvas>
+
+                <div id="graficos-container" style="display: flex; gap: 20px; width: 100%; height: 400px;">
+                    <div style="flex: 1;"> <h4>Questões por Dia</h4>
+                        <canvas id="graficoQuantidade"></canvas>
+                    </div>
+                    <div style="flex: 1;"> <h4>% Acerto por Dia</h4>
+                        <canvas id="graficoPercentual"></canvas>
+                    </div>
                 </div>
             </div>
         </section>

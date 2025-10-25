@@ -46,7 +46,7 @@ a:hover {
     display: flex;
     gap: 40px;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1600px; 
     margin-top: 20px;
     align-items: flex-start;
 }

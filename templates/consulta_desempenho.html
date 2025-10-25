@@ -10,7 +10,7 @@
 <body>
     <h1>Consulta de Desempenho Individual</h1>
 
-    <div class="container" style="flex-direction: column; align-items: center;">
+    <div class="container" style="flex-direction: column; align-items: center;"> 
         <section class="form-section" style="width: 100%; max-width: 600px;">
             <h2>Selecionar Período</h2>
             <form id="form-consulta">
@@ -24,25 +24,26 @@
             </form>
         </section>
 
-        <section class="info-column" style="width: 100%; max-width: 1000px; margin-top: 30px;"> <div class="recent-section">
+        <section class="info-column" style="width: 100%; max-width: 1000px; margin-top: 30px;">
+            <div class="recent-section">
                 <h3 id="resultado-titulo">Resultado da Consulta</h3>
                 <div id="resultado-consulta" style="margin-bottom: 20px;">
                     <p>Selecione um aluno e um período acima.</p>
                 </div>
 
-                <div id="graficos-container" style="display: flex; gap: 20px; width: 100%; height: 400px;">
-                    <div style="flex: 1;"> <h4>Questões por Dia</h4>
+                <div id="graficos-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; height: 400px; margin-bottom: 20px;">
+                    <div style="flex: 1; min-width: 300px; max-width: 45%;"> <h4>Questões por Dia</h4>
                         <canvas id="graficoQuantidade"></canvas>
                     </div>
-                    <div style="flex: 1;"> <h4>% Acerto por Dia</h4>
+                    <div style="flex: 1; min-width: 300px; max-width: 45%;"> <h4>% Acerto por Dia</h4>
                         <canvas id="graficoPercentual"></canvas>
                     </div>
                 </div>
             </div>
         </section>
-    </div>
 
-    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
-    <script src="{{ url_for('static', filename='consulta_desempenho.js') }}"></script>
+        <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
+
+    </div> <script src="{{ url_for('static', filename='consulta_desempenho.js') }}"></script>
 </body>
 </html>

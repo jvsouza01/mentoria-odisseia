@@ -177,3 +177,18 @@ li:last-child {
     background-color: var(--primary-green);
     color: var(--bg-dark); /* Texto fica escuro ao passar o mouse */
 }
+/* ======== ESTILOS PARA OS GRÁFICOS DE CONSULTA ======== */
+.grafico-wrapper {
+    position: relative; /* Necessário para o Chart.js responsivo */
+    height: 350px;      /* Define uma altura fixa para o wrapper do gráfico */
+    width: 100%;        /* Ocupa a largura disponível no flex container */
+}
+
+/* Garante que o canvas ocupe o espaço do wrapper */
+.grafico-wrapper canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;  /* Força a largura */
+    height: 100% !important; /* Força a altura */
+}

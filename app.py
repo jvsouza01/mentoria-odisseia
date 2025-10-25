@@ -344,3 +344,63 @@ def get_rankings_semana_passada():
         'quantidade': [dict(row) for row in ranking_quantidade],
         'percentual': [dict(row) for row in ranking_percentual]
     })
+
+# --- ROTAS PARA CONSULTA DE DESEMPENHO INDIVIDUAL ---
+
+@app.route('/consulta-desempenho')
+def consulta_desempenho():
+    """Serve a página de consulta de desempenho individual."""
+    return render_template('consulta_desempenho.html')
+
+@app.route('/api/consulta/desempenho', methods=['GET'])
+def get_consulta_desempenho():
+    """Busca o desempenho de um aluno em um período específico."""
+    
+    # Pegar os parâmetros da URL (?aluno_id=X&inicio=YYYY-MM-DD&fim=YYYY-MM-DD)
+    aluno_id = request.args.get('aluno_id')
+    data_inicio_str = request.args.get('inicio')
+    data_fim_str = request.args.get('fim')
+
+    # Validação básica
+    if not aluno_id or not data_inicio_str or not data_fim_str:
+        return jsonify({'erro': 'Parâmetros aluno_id, inicio e fim são obrigatórios.'}), 400
+
+    try:
+        # Converter as strings de data para objetos date
+        # Adiciona T00:00:00 e T23:59:59 para incluir o dia inteiro na busca
+        data_inicio = datetime.strptime(data_inicio_str + ' 00:00:00', '%Y-%m-%d %H:%M:%S')
+        data_fim = datetime.strptime(data_fim_str + ' 23:59:59', '%Y-%m-%d %H:%M:%S')
+
+        # Consulta para somar as questões e acertos no período
+        resultado = db.session.query(
+            db.func.sum(RegistrosQuestoes.quantidade_questoes).label('total_questoes'),
+            db.func.sum(RegistrosQuestoes.acertos).label('total_acertos')
+        ).filter(
+            RegistrosQuestoes.aluno_id == aluno_id,
+            RegistrosQuestoes.data_registro >= data_inicio,
+            RegistrosQuestoes.data_registro <= data_fim
+        ).first()
+
+        total_questoes = resultado.total_questoes if resultado.total_questoes else 0
+        total_acertos = resultado.total_acertos if resultado.total_acertos else 0
+        
+        percentual = (total_acertos * 100.0 / total_questoes) if total_questoes > 0 else 0
+
+        # Busca o nome do aluno para exibir
+        aluno = Alunos.query.get(aluno_id)
+        nome_aluno = aluno.nome if aluno else "Aluno não encontrado"
+
+        return jsonify({
+            'aluno_nome': nome_aluno,
+            'data_inicio': data_inicio_str,
+            'data_fim': data_fim_str,
+            'total_questoes': total_questoes,
+            'total_acertos': total_acertos,
+            'percentual': round(percentual, 2) # Arredonda para 2 casas decimais
+        })
+
+    except ValueError:
+        return jsonify({'erro': 'Formato de data inválido. Use YYYY-MM-DD.'}), 400
+    except Exception as e:
+        print(f"Erro na consulta: {e}") # Log do erro no servidor
+        return jsonify({'erro': 'Erro ao consultar o banco de dados.'}), 500

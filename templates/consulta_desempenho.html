@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Desempenho - Mentoria Odisseia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Consulta de Desempenho Individual</h1>
+
+    <div class="container" style="flex-direction: column; align-items: center;">
+        <section class="form-section" style="width: 100%; max-width: 600px;">
+            <h2>Selecionar Período</h2>
+            <form id="form-consulta">
+                <label for="consulta-aluno">Aluno:</label>
+                <select id="consulta-aluno" required>
+                    <option value="">Carregando alunos...</option>
+                </select>
+
+                <label for="consulta-data-inicio">Data Início:</label>
+                <input type="date" id="consulta-data-inicio" required>
+
+                <label for="consulta-data-fim">Data Fim:</label>
+                <input type="date" id="consulta-data-fim" required>
+
+                <button type="submit">Consultar</button>
+            </form>
+        </section>
+
+        <section class="info-column" style="width: 100%; max-width: 600px; margin-top: 30px;">
+            <div class="recent-section">
+                <h3 id="resultado-titulo">Resultado da Consulta</h3>
+                <div id="resultado-consulta">
+                    <p>Selecione um aluno e um período acima.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
+
+    <script src="{{ url_for('static', filename='consulta_desempenho.js') }}"></script>
+</body>
+</html>

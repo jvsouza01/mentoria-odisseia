@@ -27,79 +27,97 @@ document.addEventListener('DOMContentLoaded', () => {
     async function carregarRankings() {
         try {
             const response = await fetch('/api/rankings');
+            if (!response.ok) { // Verifica se a API respondeu com sucesso
+                 throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const rankings = await response.json(); // Ex: { quantidade: [...], percentual: [...] }
 
             // --- Lógica para Ranking de Quantidade ---
             const rankingQtdList = document.getElementById('ranking-quantidade');
-            const top3Qtd = rankings.quantidade.slice(0, 3); // Pega os 3 primeiros
-            const restoQtd = rankings.quantidade.slice(3); // Pega do 4º em diante
-
-            // Limpa pódio e lista
-            document.getElementById('podium-qtd-1-name').textContent = '---';
-            document.getElementById('podium-qtd-1-score').textContent = '--- Qtd';
-            // ... (limpar também #2 e #3 de forma similar)
-            document.getElementById('podium-qtd-2-name').textContent = '---';
-            document.getElementById('podium-qtd-2-score').textContent = '--- Qtd';
-            document.getElementById('podium-qtd-3-name').textContent = '---';
-            document.getElementById('podium-qtd-3-score').textContent = '--- Qtd';
-            rankingQtdList.innerHTML = '';
-
-            // Preenche o pódio de Quantidade
-            top3Qtd.forEach((item, index) => {
-                const rank = index + 1;
-                document.getElementById(`podium-qtd-${rank}-name`).textContent = item.nome;
-                document.getElementById(`podium-qtd-${rank}-score`).textContent = `${item.total} Qtd`;
+            // Limpa o pódio de Quantidade (Define valores padrão)
+            ['1', '2', '3'].forEach(rank => {
+                const nameEl = document.getElementById(`podium-qtd-${rank}-name`);
+                const scoreEl = document.getElementById(`podium-qtd-${rank}-score`);
+                if (nameEl) nameEl.textContent = '---';
+                if (scoreEl) scoreEl.textContent = rank === '1' ? '--- Qtd' : '--- Qtd'; // Ajuste conforme necessário
             });
+            rankingQtdList.innerHTML = ''; // Limpa a lista de demais colocações
 
-            // Preenche a lista do restante (4º em diante)
-            if (restoQtd.length === 0 && top3Qtd.length === 0){
-                 rankingQtdList.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda.</li>';
-            } else {
-                restoQtd.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.textContent = `${index + 4}. ${item.nome} - ${item.total} questões`; // Começa a contar do 4º
-                    rankingQtdList.appendChild(li);
+            if (rankings.quantidade && rankings.quantidade.length > 0) {
+                const top3Qtd = rankings.quantidade.slice(0, 3);
+                const restoQtd = rankings.quantidade.slice(3);
+
+                // Preenche o pódio de Quantidade
+                top3Qtd.forEach((item, index) => {
+                    const rank = index + 1;
+                    const nameEl = document.getElementById(`podium-qtd-${rank}-name`);
+                    const scoreEl = document.getElementById(`podium-qtd-${rank}-score`);
+                    if (nameEl) nameEl.textContent = item.nome;
+                    if (scoreEl) scoreEl.textContent = `${item.total} Qtd`;
                 });
-            }
 
+                // Preenche a lista do restante (4º em diante)
+                if (restoQtd.length > 0) {
+                    restoQtd.forEach((item, index) => {
+                        const li = document.createElement('li');
+                        // Garante que o número está correto (index do slice(3) + 4)
+                        li.textContent = `${index + 4}. ${item.nome} - ${item.total} questões`;
+                        rankingQtdList.appendChild(li);
+                    });
+                } else if (top3Qtd.length >= 3) {
+                     // Se tem top 3 mas não tem mais ninguém
+                     // rankingQtdList.innerHTML = '<li>-- Fim da lista --</li>'; // Opcional
+                }
+
+            } else {
+                rankingQtdList.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda.</li>';
+            }
 
             // --- Lógica para Ranking de Percentual --- (Similar à de Quantidade)
             const rankingPercList = document.getElementById('ranking-percentual');
-            const top3Perc = rankings.percentual.slice(0, 3);
-            const restoPerc = rankings.percentual.slice(3);
-
-             // Limpa pódio e lista
-            document.getElementById('podium-perc-1-name').textContent = '---';
-            document.getElementById('podium-perc-1-score').textContent = '--- %';
-             // ... (limpar também #2 e #3)
-            document.getElementById('podium-perc-2-name').textContent = '---';
-            document.getElementById('podium-perc-2-score').textContent = '--- %';
-            document.getElementById('podium-perc-3-name').textContent = '---';
-            document.getElementById('podium-perc-3-score').textContent = '--- %';
-            rankingPercList.innerHTML = '';
-
-
-            // Preenche o pódio de Percentual
-            top3Perc.forEach((item, index) => {
-                const rank = index + 1;
-                document.getElementById(`podium-perc-${rank}-name`).textContent = item.nome;
-                document.getElementById(`podium-perc-${rank}-score`).textContent = `${parseFloat(item.percentual).toFixed(2)}%`;
+             // Limpa o pódio de Percentual
+            ['1', '2', '3'].forEach(rank => {
+                const nameEl = document.getElementById(`podium-perc-${rank}-name`);
+                const scoreEl = document.getElementById(`podium-perc-${rank}-score`);
+                if (nameEl) nameEl.textContent = '---';
+                if (scoreEl) scoreEl.textContent = '--- %';
             });
+            rankingPercList.innerHTML = ''; // Limpa a lista
 
-            // Preenche a lista do restante (4º em diante)
-             if (restoPerc.length === 0 && top3Perc.length === 0){
-                 rankingPercList.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda (ou mínimo não atingido).</li>';
-            } else {
-                restoPerc.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.textContent = `${index + 4}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`; // Começa do 4º
-                    rankingPercList.appendChild(li);
+            if (rankings.percentual && rankings.percentual.length > 0) {
+                const top3Perc = rankings.percentual.slice(0, 3);
+                const restoPerc = rankings.percentual.slice(3);
+
+                // Preenche o pódio de Percentual
+                top3Perc.forEach((item, index) => {
+                    const rank = index + 1;
+                    const nameEl = document.getElementById(`podium-perc-${rank}-name`);
+                    const scoreEl = document.getElementById(`podium-perc-${rank}-score`);
+                    if (nameEl) nameEl.textContent = item.nome;
+                    if (scoreEl) scoreEl.textContent = `${parseFloat(item.percentual).toFixed(2)}%`;
                 });
+
+                // Preenche a lista do restante (4º em diante)
+                 if (restoPerc.length > 0) {
+                    restoPerc.forEach((item, index) => {
+                        const li = document.createElement('li');
+                        li.textContent = `${index + 4}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`;
+                        rankingPercList.appendChild(li);
+                    });
+                 } else if (top3Perc.length >=3) {
+                     // rankingPercList.innerHTML = '<li>-- Fim da lista --</li>'; // Opcional
+                 }
+
+            } else {
+                rankingPercList.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda (ou mínimo não atingido).</li>';
             }
 
         } catch (error) {
             console.error('Erro ao carregar rankings:', error);
-            // Poderíamos adicionar mensagens de erro nos pódios/listas aqui
+            // Limpa tudo em caso de erro para evitar dados inconsistentes
+             document.getElementById('ranking-quantidade').innerHTML = '<li>Erro ao carregar ranking.</li>';
+             document.getElementById('ranking-percentual').innerHTML = '<li>Erro ao carregar ranking.</li>';
+             // Limpar pódios também se desejar
         }
     }
     

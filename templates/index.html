@@ -9,12 +9,11 @@
 <body>
     <h1>Mentoria Odisseia</h1>
 
-   <nav class="main-nav">
-    <a href="/ranking-geral" class="nav-button">Histórico de Rankings</a>
-    <a href="/ranking-simulados" class="nav-button">Rankings de Simulados</a>
-    <a href="/consulta-desempenho" class="nav-button">Consulta Individual</a> 
-    <a href="/gerenciar-simulados" class="nav-button">Cadastrar Simulados</a>
-</nav>
+    <nav class="main-nav">
+        <a href="/ranking-geral" class="nav-button">Histórico de Rankings</a>
+        <a href="/ranking-simulados" class="nav-button">Rankings de Simulados</a>
+        <a href="/consulta-desempenho" class="nav-button">Consulta Individual</a>
+        <a href="/gerenciar-simulados" class="nav-button">Gerenciar Simulados</a> </nav>
 
     <div class="container">
         <section class="form-section">
@@ -24,13 +23,10 @@
                 <select id="aluno-select" name="aluno_id" required>
                     <option value="">Carregando...</option>
                 </select>
-
                 <label for="questoes-input">Quantidade de Questões:</label>
                 <input type="number" id="questoes-input" name="quantidade" min="1" required>
-
                 <label for="acertos-input">Número de Acertos:</label>
                 <input type="number" id="acertos-input" name="acertos" min="0" required>
-
                 <button type="submit">Adicionar Registro</button>
             </form>
         </section>
@@ -38,12 +34,6 @@
         <div class="info-column">
             <section class="ranking-section">
                 <h2>Ranking da Semana</h2>
-                <p>
-                    <a href="/ranking-geral" class="nav-button">Histórico de Rankings</a> |
-                    <a href="/gerenciar-simulados" class="nav-button">Gerenciar Simulados</a> |
-                    <a href="/consulta-desempenho" class="nav-button">Consulta Individual</a>
-                </p>
-
                 <h3>🏆 Top 3 - Quantidade (Semana)</h3>
                 <div class="ranking-podium" id="podium-quantidade">
                     <div class="podium-spot spot-2">
@@ -63,9 +53,7 @@
                     </div>
                 </div>
                 <h4>Demais Colocações (Quantidade):</h4>
-                <ol id="ranking-quantidade"></ol>
-
-                <h3 style="margin-top: 40px;">📊 Top 3 - % de Acerto (Semana)</h3>
+                <ol id="ranking-quantidade"></ol> <h3 style="margin-top: 40px;">📊 Top 3 - % de Acerto (Semana)</h3>
                  <div class="ranking-podium" id="podium-percentual">
                     <div class="podium-spot spot-2">
                         <div class="podium-rank">#2</div>
@@ -84,8 +72,12 @@
                     </div>
                 </div>
                 <h4>Demais Colocações (% Acerto):</h4>
-                <ol id="ranking-percentual"></ol>
-            </section>
+                <ol id="ranking-percentual"></ol> </section>
+
+            <section class="recent-section">
+                 <h3>Últimos Lançamentos (com opção de apagar)</h3>
+                 <ul id="ultimos-lancamentos"></ul>
+             </section>
         </div>
     </div>
 

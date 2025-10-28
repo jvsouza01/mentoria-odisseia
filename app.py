@@ -345,6 +345,13 @@ def get_rankings_semana_passada():
         'percentual': [dict(row) for row in ranking_percentual]
     })
 
+# ROTA PARA REGISTRO DE QUESTÕES
+
+@app.route('/registrar-questoes')
+def registrar_questoes():
+    """Serve a página dedicada ao registro de desempenho (questões)."""
+    return render_template('registrar_questoes.html')
+
 # --- ROTAS PARA CONSULTA DE DESEMPENHO INDIVIDUAL ---
 
 @app.route('/consulta-desempenho')
@@ -441,3 +448,5 @@ def get_consulta_desempenho():
         print(f"--- ❌ ERRO INESPERADO na consulta: {e} ---")
         db.session.rollback() # Importante reverter a sessão em caso de erro
         return jsonify({'erro': 'Erro ao consultar o banco de dados.'}), 500
+    
+    

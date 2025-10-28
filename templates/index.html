@@ -38,18 +38,53 @@
         <div class="info-column">
             <section class="ranking-section">
                 <h2>Ranking da Semana</h2>
-                
-                <h3>🏆 Top 10 - Quantidade (Semana)</h3>
+                <p>
+                    <a href="/ranking-geral" class="nav-button">Histórico de Rankings</a> |
+                    <a href="/gerenciar-simulados" class="nav-button">Gerenciar Simulados</a> |
+                    <a href="/consulta-desempenho" class="nav-button">Consulta Individual</a>
+                </p>
+
+                <h3>🏆 Top 3 - Quantidade (Semana)</h3>
+                <div class="ranking-podium" id="podium-quantidade">
+                    <div class="podium-spot spot-2">
+                        <div class="podium-rank">#2</div>
+                        <div class="podium-name" id="podium-qtd-2-name">---</div>
+                        <div class="podium-score" id="podium-qtd-2-score">--- Qtd</div>
+                    </div>
+                    <div class="podium-spot spot-1">
+                        <div class="podium-rank">#1 🥇</div>
+                        <div class="podium-name" id="podium-qtd-1-name">---</div>
+                        <div class="podium-score" id="podium-qtd-1-score">--- Qtd</div>
+                    </div>
+                    <div class="podium-spot spot-3">
+                        <div class="podium-rank">#3</div>
+                        <div class="podium-name" id="podium-qtd-3-name">---</div>
+                        <div class="podium-score" id="podium-qtd-3-score">--- Qtd</div>
+                    </div>
+                </div>
+                <h4>Demais Colocações (Quantidade):</h4>
                 <ol id="ranking-quantidade"></ol>
 
-                <h3>📊 Top 10 - % de Acerto (Semana)</h3>
+                <h3 style="margin-top: 40px;">📊 Top 3 - % de Acerto (Semana)</h3>
+                 <div class="ranking-podium" id="podium-percentual">
+                    <div class="podium-spot spot-2">
+                        <div class="podium-rank">#2</div>
+                        <div class="podium-name" id="podium-perc-2-name">---</div>
+                        <div class="podium-score" id="podium-perc-2-score">--- %</div>
+                    </div>
+                    <div class="podium-spot spot-1">
+                        <div class="podium-rank">#1 🥇</div>
+                        <div class="podium-name" id="podium-perc-1-name">---</div>
+                        <div class="podium-score" id="podium-perc-1-score">--- %</div>
+                    </div>
+                    <div class="podium-spot spot-3">
+                        <div class="podium-rank">#3</div>
+                        <div class="podium-name" id="podium-perc-3-name">---</div>
+                        <div class="podium-score" id="podium-perc-3-score">--- %</div>
+                    </div>
+                </div>
+                <h4>Demais Colocações (% Acerto):</h4>
                 <ol id="ranking-percentual"></ol>
-            </section>
-            
-            <section class="recent-section">
-                <h3>Últimos Lançamentos (com opção de apagar)</h3>
-                <ul id="ultimos-lancamentos">
-                    </ul>
             </section>
         </div>
     </div>

@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const nameEl = document.getElementById(`podium-qtd-${rank}-name`);
                     const scoreEl = document.getElementById(`podium-qtd-${rank}-score`);
                     if (nameEl) nameEl.textContent = item.nome;
-                    if (scoreEl) scoreEl.textContent = `${item.total} Qtd`;
+                    if (scoreEl) scoreEl.textContent = `${item.total} questões`;
                 });
 
                 // Preenche a lista do restante (4º em diante)

@@ -153,10 +153,11 @@ li:last-child {
 .main-nav {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    flex-wrap: wrap; /* <-- ADICIONADO: Permite que os botões quebrem a linha */
+    gap: 15px; /* Reduzindo o gap para caber melhor no mobile */
     width: 100%;
-    max-width: 1200px;
-    margin-bottom: 30px; /* Aumenta o espaço antes do conteúdo principal */
+    max-width: 1600px; /* (Mantenha o max-width que você definiu) */
+    margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
 }
@@ -171,6 +172,8 @@ li:last-child {
     font-weight: bold;
     transition: all 0.3s ease;
     text-align: center;
+    flex-grow: 1; /* Opcional: Faz os botões crescerem para preencher o espaço */
+    flex-basis: 200px; /* Opcional: Define uma largura base antes de quebrar */
 }
 
 .nav-button:hover {

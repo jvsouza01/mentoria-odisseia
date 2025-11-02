@@ -97,10 +97,18 @@ def iniciar_banco():
 
 
 def get_start_of_week():
-    today = datetime.utcnow()
-    days_since_sunday = (today.weekday() - 6 + 7) % 7
-    start_of_week = today - timedelta(days=days_since_sunday)
-    return start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+    """Calcula a data do último domingo 00:00 BRT (GMT-3)."""
+    
+    today_utc = datetime.utcnow()
+    
+    today_brt = today_utc - timedelta(hours=3)
+    
+    days_since_sunday = (today_brt.weekday() - 6 + 7) % 7
+    start_of_week_brt = today_brt - timedelta(days=days_since_sunday)
+    start_of_week_brt_midnight = start_of_week_brt.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_of_week_utc = start_of_week_brt_midnight + timedelta(hours=3)
+    
+    return start_of_week_utc
 
 @app.route('/')
 def index():

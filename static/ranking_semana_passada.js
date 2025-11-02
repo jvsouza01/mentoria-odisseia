@@ -1,59 +1,114 @@
-// Precisamos das bibliotecas que foram carregadas no HTML
 const { jsPDF } = window.jspdf;
-// html2canvas é adicionado globalmente
 
 document.addEventListener('DOMContentLoaded', () => {
-    // IDs para o Ranking da Semana Passada
-    const rankingQtdPassada = document.getElementById('ranking-quantidade-passada');
-    const rankingPercPassada = document.getElementById('ranking-percentual-passada');
+    // Seletores para os elementos do ranking
+    const rankingQtdPassadaLista = document.getElementById('ranking-quantidade-passada-lista');
+    const rankingPercPassadaLista = document.getElementById('ranking-percentual-passada-lista');
     
-    // Botão de PDF
+    // Seletores para o botão de PDF e o card completo
     const btnPdfSemanaPassada = document.getElementById('btn-pdf-semana-passada');
     const cardParaImprimir = document.getElementById('card-semana-passada');
 
-    // Função para buscar o ranking da SEMANA PASSADA
+    // Função para buscar o ranking da SEMANA PASSADA e preencher o HTML
     async function carregarRankingSemanaPassada() {
         try {
             const response = await fetch('/api/rankings/semana-passada');
             const rankings = await response.json();
             
-            rankingQtdPassada.innerHTML = '';
-            rankingPercPassada.innerHTML = '';
+            // --- Lógica para Ranking de Quantidade ---
+            // Limpa o pódio de Quantidade (Define valores padrão)
+            ['1', '2', '3'].forEach(rank => {
+                const nameEl = document.getElementById(`podium-qtd-passada-${rank}-name`);
+                const scoreEl = document.getElementById(`podium-qtd-passada-${rank}-score`);
+                if (nameEl) nameEl.textContent = '---';
+                if (scoreEl) scoreEl.textContent = '--- Questões';
+            });
+            rankingQtdPassadaLista.innerHTML = ''; // Limpa a lista de demais colocações
 
-            if (rankings.quantidade.length === 0) {
-                rankingQtdPassada.innerHTML = '<li>Nenhum dado registrado na semana passada.</li>';
-            } else {
-                rankings.quantidade.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.textContent = `${index + 1}. ${item.nome} - ${item.total} questões`;
-                    rankingQtdPassada.appendChild(li);
+            if (rankings.quantidade && rankings.quantidade.length > 0) {
+                const top3Qtd = rankings.quantidade.slice(0, 3);
+                const restoQtd = rankings.quantidade.slice(3);
+
+                // Preenche o pódio de Quantidade
+                top3Qtd.forEach((item, index) => {
+                    const rank = index + 1;
+                    const nameEl = document.getElementById(`podium-qtd-passada-${rank}-name`);
+                    const scoreEl = document.getElementById(`podium-qtd-passada-${rank}-score`);
+                    if (nameEl) nameEl.textContent = item.nome;
+                    if (scoreEl) scoreEl.textContent = `${item.total} Questões`;
                 });
-            }
-            
-            if (rankings.percentual.length === 0) {
-                rankingPercPassada.innerHTML = '<li>Nenhum dado registrado na semana passada (ou mínimo de 20q não atingido).</li>';
+
+                // Preenche a lista do restante (4º em diante)
+                if (restoQtd.length > 0) {
+                    restoQtd.forEach((item, index) => {
+                        const li = document.createElement('li');
+                        li.textContent = `${index + 4}. ${item.nome} - ${item.total} questões`;
+                        rankingQtdPassadaLista.appendChild(li);
+                    });
+                } else if (top3Qtd.length >= 1) {
+                    // Opcional: rankingQtdPassadaLista.innerHTML = '<li>-- Fim da lista --</li>';
+                }
             } else {
-                rankings.percentual.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.textContent = `${index + 1}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`;
-                    rankingPercPassada.appendChild(li);
-                });
+                rankingQtdPassadaLista.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda.</li>';
             }
+
+            // --- Lógica para Ranking de Percentual ---
+            // Limpa o pódio de Percentual
+            ['1', '2', '3'].forEach(rank => {
+                const nameEl = document.getElementById(`podium-perc-passada-${rank}-name`);
+                const scoreEl = document.getElementById(`podium-perc-passada-${rank}-score`);
+                if (nameEl) nameEl.textContent = '---';
+                if (scoreEl) scoreEl.textContent = '--- %';
+            });
+            rankingPercPassadaLista.innerHTML = ''; // Limpa a lista
+
+            if (rankings.percentual && rankings.percentual.length > 0) {
+                const top3Perc = rankings.percentual.slice(0, 3);
+                const restoPerc = rankings.percentual.slice(3);
+
+                // Preenche o pódio de Percentual
+                top3Perc.forEach((item, index) => {
+                    const rank = index + 1;
+                    const nameEl = document.getElementById(`podium-perc-passada-${rank}-name`);
+                    const scoreEl = document.getElementById(`podium-perc-passada-${rank}-score`);
+                    if (nameEl) nameEl.textContent = item.nome;
+                    if (scoreEl) scoreEl.textContent = `${parseFloat(item.percentual).toFixed(2)}%`;
+                });
+
+                // Preenche a lista do restante (4º em diante)
+                if (restoPerc.length > 0) {
+                    restoPerc.forEach((item, index) => {
+                        const li = document.createElement('li');
+                        li.textContent = `${index + 4}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`;
+                        rankingPercPassadaLista.appendChild(li);
+                    });
+                } else if (top3Perc.length >= 1) {
+                    // Opcional: rankingPercPassadaLista.innerHTML = '<li>-- Fim da lista --</li>';
+                }
+            } else {
+                rankingPercPassadaLista.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda (ou mínimo não atingido).</li>';
+            }
+
         } catch (error) {
             console.error('Erro ao carregar ranking da semana passada:', error);
+            rankingQtdPassadaLista.innerHTML = '<li>Erro ao carregar ranking.</li>';
+            rankingPercPassadaLista.innerHTML = '<li>Erro ao carregar ranking.</li>';
         }
     }
 
-    // Função para gerar o PDF (código idêntico ao anterior)
+    // --- Função para Gerar o PDF (Código idêntico ao anterior) ---
     function gerarPDF() {
-        btnPdfSemanaPassada.style.display = 'none';
+        console.log('Iniciando geração de PDF para Ranking Semana Passada...');
+        btnPdfSemanaPassada.style.display = 'none'; // Esconde o botão
+
         html2canvas(cardParaImprimir, {
-            scale: 2, backgroundColor: null,
+            scale: 2,
+            backgroundColor: null,
             onclone: (documentClone) => {
                 documentClone.getElementById('card-semana-passada').style.backgroundColor = 'var(--card-dark)';
             }
         }).then(canvas => {
-            btnPdfSemanaPassada.style.display = 'block';
+            btnPdfSemanaPassada.style.display = 'block'; // Mostra o botão
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -61,11 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save('ranking_semana_passada.pdf');
         }).catch(err => {
-            console.error('Erro ao gerar PDF:', err);
-            btnPdfSemanaPassada.style.display = 'block';
+            console.error('Erro ao gerar PDF para Ranking Semana Passada:', err);
+            btnPdfSemanaPassada.style.display = 'block'; // Garante que o botão reapareça
         });
     }
 
+    // Adiciona o listener ao botão de PDF
     btnPdfSemanaPassada.addEventListener('click', gerarPDF);
-    carregarRankingSemanaPassada(); // Carrega o ranking ao abrir a página
+
+    // Carrega os rankings ao carregar a página
+    carregarRankingSemanaPassada();
 });

@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, Date
 from datetime import datetime, timedelta
 from sqlalchemy import func 
+from sqlalchemy.orm import joinedload  
 
 app = Flask(__name__)
 
@@ -470,4 +471,56 @@ def ranking_semana_passada():
     """Serve a nova página dedicada ao ranking da semana passada."""
     return render_template('ranking_semana_passada.html')
 
+# -- TIMER SIMULADOS -- 
+class TemposSimulado(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aluno_id = db.Column(db.Integer, db.ForeignKey('alunos.id'), nullable=False)
+    simulado_id = db.Column(db.Integer, db.ForeignKey('simulados.id'), nullable=False)
+    # salvar o tempo total em segundos
+    tempo_total_gasto = db.Column(db.Integer, nullable=False)
+    # salvar os "laps" das matérias 
+    tempos_por_materia = db.Column(db.Text, nullable=True)
+    data_realizacao = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    # Relacionamentos para facilitar as buscas
+    aluno = db.relationship('Alunos', backref=db.backref('tempos_simulados', lazy=True))
+    simulado = db.relationship('Simulados', backref=db.backref('tempos_simulados', lazy=True))
 
+# --- ROTA PARA SERVIR A PÁGINA DO CRONÔMETRO (CORRIGIDA) ---
+@app.route('/iniciar-simulado/<int:simulado_id>')
+def iniciar_simulado(simulado_id):
+    """Serve a página do cronômetro para um simulado específico."""
+    
+    # MUDANÇA: Usamos options(joinedload()) para buscar o simulado E a empresa juntos.
+    simulado = Simulados.query.options(
+        joinedload(Simulados.empresa) 
+    ).get_or_404(simulado_id)
+    
+    # Passamos os dados do simulado (agora com a empresa) para o template
+    return render_template('iniciar_simulado.html', simulado=simulado)
+
+# --- ROTA PARA RECEBER OS DADOS DO CRONÔMETRO ---
+@app.route('/api/salvar-tempos-simulado', methods=['POST'])
+def salvar_tempos_simulado():
+    """Recebe e salva os tempos de um simulado finalizado."""
+    dados = request.get_json()
+    
+    # Validação básica dos dados recebidos do JS
+    if not all(k in dados for k in ['aluno_id', 'simulado_id', 'tempo_total_gasto', 'tempos_por_materia']):
+        return jsonify({'status': 'erro', 'mensagem': 'Dados incompletos.'}), 400
+
+    try:
+        novo_tempo = TemposSimulado(
+            aluno_id=dados['aluno_id'],
+            simulado_id=dados['simulado_id'],
+            tempo_total_gasto=dados['tempo_total_gasto'],
+            tempos_por_materia=str(dados['tempos_por_materia']) # Salva o JSON como string
+        )
+        db.session.add(novo_tempo)
+        db.session.commit()
+        return jsonify({'status': 'sucesso', 'mensagem': 'Tempos salvos com sucesso!'}), 201
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao salvar tempos: {e}")
+        return jsonify({'status': 'erro', 'mensagem': 'Erro interno ao salvar os dados.'}), 500

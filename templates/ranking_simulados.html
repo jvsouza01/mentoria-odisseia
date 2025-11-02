@@ -13,11 +13,16 @@
         <section class="form-section" style="width: 100%; max-width: 800px;">
             <h2>Selecionar Simulado</h2>
             <form id="form-filtro-simulado">
-                <label for="filtro-simulado">Escolha o simulado para ver o ranking:</label>
+                <label for="filtro-simulado">Escolha o simulado:</label>
                 <select id="filtro-simulado" required>
                     <option value="">Carregando simulados...</option>
                 </select>
-                <button type="submit">Ver Ranking</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="submit" style="flex: 1;">Ver Ranking</button>
+                    <button type="button" id="btn-iniciar-cronometro" class="action-button" style="flex: 1;">
+                        Iniciar Cronômetro
+                    </button>
+                </div>
             </form>
         </section>
 

@@ -1,10 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Seletores do DOM ---
     const formFiltro = document.getElementById('form-filtro-simulado');
     const selectSimulado = document.getElementById('filtro-simulado');
+    
+    // O botão "Ver Ranking" é o 'submit' do formulário
+    // Este é o NOVO botão que adicionamos no HTML
+    const btnIniciarCronometro = document.getElementById('btn-iniciar-cronometro'); 
+
+    // Área de exibição do ranking
     const listaRanking = document.getElementById('lista-ranking-simulado');
     const rankingTitulo = document.getElementById('ranking-titulo');
 
-    // Função para carregar a lista de simulados no dropdown
+    // --- Funções ---
+
+    // 1. Carregar a lista de simulados no dropdown
+    // (Esta função está correta como no seu código)
     async function carregarSimulados() {
         try {
             const response = await fetch('/api/simulados');
@@ -14,8 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             simulados.forEach(simulado => {
                 const option = document.createElement('option');
                 option.value = simulado.id;
-                // Guarda o nome do simulado no próprio elemento para usar no título
-                option.dataset.nome = simulado.nome_display; 
+                option.dataset.nome = simulado.nome_display; // Guarda o nome
                 option.textContent = `${simulado.nome_display} - ${simulado.data}`;
                 selectSimulado.appendChild(option);
             });
@@ -24,16 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Lógica do formulário de filtro
+    // 2. Lógica do formulário de filtro (Botão "Ver Ranking")
+    // (Esta função também está correta como no seu código)
     formFiltro.addEventListener('submit', async (event) => {
-        event.preventDefault();
+        event.preventDefault(); // Impede o envio padrão do formulário
         const simuladoId = selectSimulado.value;
         if (!simuladoId) {
             alert('Por favor, selecione um simulado.');
             return;
         }
 
-        // Pega o nome do simulado que guardamos no dataset
         const selectedOption = selectSimulado.options[selectSimulado.selectedIndex];
         rankingTitulo.textContent = `Ranking: ${selectedOption.dataset.nome}`;
         listaRanking.innerHTML = '<li>Carregando ranking...</li>';
@@ -58,6 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Carrega a lista de simulados ao abrir a página
-    carregarSimulados();
+    // 3. Lógica do novo botão "Iniciar Cronômetro"
+    // (Esta era a parte que faltava integrar)
+    btnIniciarCronometro.addEventListener('click', () => {
+        const simuladoId = selectSimulado.value;
+        if (!simuladoId) {
+            alert('Por favor, selecione um simulado para iniciar o cronômetro.');
+            return;
+        }
+        // Redireciona o usuário para a nova página do cronômetro
+        window.location.href = `/iniciar-simulado/${simuladoId}`;
+    });
+
+    // --- Inicialização ---
+    carregarSimulados(); // Carrega a lista de simulados ao abrir a página
 });

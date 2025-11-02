@@ -457,4 +457,17 @@ def get_consulta_desempenho():
         db.session.rollback() # Importante reverter a sessão em caso de erro
         return jsonify({'erro': 'Erro ao consultar o banco de dados.'}), 500
     
-    
+
+
+
+@app.route('/historico-questoes')
+def historico_questoes():
+    """Serve a nova página 'hub' para os rankings históricos."""
+    return render_template('historico_questoes.html')
+
+@app.route('/ranking-semana-passada')
+def ranking_semana_passada():
+    """Serve a nova página dedicada ao ranking da semana passada."""
+    return render_template('ranking_semana_passada.html')
+
+

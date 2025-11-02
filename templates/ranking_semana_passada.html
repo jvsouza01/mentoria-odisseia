@@ -13,51 +13,61 @@
     <h1>Ranking da Semana Passada</h1>
 
     <div class="container" style="flex-direction: column; align-items: center; gap: 30px;">
-        <section id="card-semana-passada" class="ranking-section" style="width: 100%; max-width: 800px;">
+        <section id="card-semana-passada" class="ranking-section" style="width: 100%; max-width: 1000px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                  <h2>Ranking da Semana Passada</h2>
                  <button id="btn-pdf-semana-passada" class="action-button">Baixar PDF</button>
             </div>
             
-            <h3>🏆 Top 3 - Quantidade</h3>
-            <div class="ranking-podium" id="podium-quantidade-passada">
-                <div class="podium-spot spot-2">
-                    <div class="podium-rank">#2</div>
-                    <div class="podium-name" id="podium-qtd-passada-2-name">---</div>
-                    <div class="podium-score" id="podium-qtd-passada-2-score">--- Questões</div>
+            <div class="ranking-columns-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
+            
+                <div class="ranking-column" style="flex: 1; min-width: 350px;">
+                    <h3>🏆 Top 3 - Quantidade</h3>
+                    <div class="ranking-podium" id="podium-quantidade-passada">
+                        <div class="podium-spot spot-2">
+                            <div class="podium-rank">#2</div>
+                            <div class="podium-name" id="podium-qtd-passada-2-name">---</div>
+                            <div class="podium-score" id="podium-qtd-passada-2-score">--- Questões</div>
+                        </div>
+                        <div class="podium-spot spot-1">
+                            <div class="podium-rank">#1 🥇</div>
+                            <div class="podium-name" id="podium-qtd-passada-1-name">---</div>
+                            <div class="podium-score" id="podium-qtd-passada-1-score">--- Questões</div>
+                        </div>
+                        <div class="podium-spot spot-3">
+                            <div class="podium-rank">#3</div>
+                            <div class="podium-name" id="podium-qtd-passada-3-name">---</div>
+                            <div class="podium-score" id="podium-qtd-passada-3-score">--- Questões</div>
+                        </div>
+                    </div>
+                    <h4>Demais Colocações (Quantidade):</h4>
+                    <ol id="ranking-quantidade-passada-lista"></ol>
                 </div>
-                <div class="podium-spot spot-1">
-                    <div class="podium-rank">#1 🥇</div>
-                    <div class="podium-name" id="podium-qtd-passada-1-name">---</div>
-                    <div class="podium-score" id="podium-qtd-passada-1-score">--- Questões</div>
+
+                <div class="ranking-column" style="flex: 1; min-width: 350px;">
+                    <h3>📊 Top 3 - % de Acerto</h3>
+                    <div class="ranking-podium" id="podium-percentual-passada">
+                        <div class="podium-spot spot-2">
+                            <div class="podium-rank">#2</div>
+                            <div class="podium-name" id="podium-perc-passada-2-name">---</div>
+                            <div class="podium-score" id="podium-perc-passada-2-score">--- %</div>
+                        </div>
+                        <div class="podium-spot spot-1">
+                            <div class="podium-rank">#1 🥇</div>
+                            <div class="podium-name" id="podium-perc-passada-1-name">---</div>
+                            <div class="podium-score" id="podium-perc-passada-1-score">--- %</div>
+                        </div>
+                        <div class="podium-spot spot-3">
+                            <div class="podium-rank">#3</div>
+                            <div class="podium-name" id="podium-perc-passada-3-name">---</div>
+                            <div class="podium-score" id="podium-perc-passada-3-score">--- %</div>
+                        </div>
+                    </div>
+                    <h4>Demais Colocações (% Acerto):</h4>
+                    <ol id="ranking-percentual-passada-lista"></ol>
                 </div>
-                <div class="podium-spot spot-3">
-                    <div class="podium-rank">#3</div>
-                    <div class="podium-name" id="podium-qtd-passada-3-name">---</div>
-                    <div class="podium-score" id="podium-qtd-passada-3-score">--- Questões</div>
-                </div>
-            </div>
-            <h4>Demais Colocações (Quantidade):</h4>
-            <ol id="ranking-quantidade-passada-lista"></ol> <h3 style="margin-top: 40px;">📊 Top 3 - % de Acerto</h3>
-            <div class="ranking-podium" id="podium-percentual-passada">
-                <div class="podium-spot spot-2">
-                    <div class="podium-rank">#2</div>
-                    <div class="podium-name" id="podium-perc-passada-2-name">---</div>
-                    <div class="podium-score" id="podium-perc-passada-2-score">--- %</div>
-                </div>
-                <div class="podium-spot spot-1">
-                    <div class="podium-rank">#1 🥇</div>
-                    <div class="podium-name" id="podium-perc-passada-1-name">---</div>
-                    <div class="podium-score" id="podium-perc-passada-1-score">--- %</div>
-                </div>
-                <div class="podium-spot spot-3">
-                    <div class="podium-rank">#3</div>
-                    <div class="podium-name" id="podium-perc-passada-3-name">---</div>
-                    <div class="podium-score" id="podium-perc-passada-3-score">--- %</div>
-                </div>
-            </div>
-            <h4>Demais Colocações (% Acerto):</h4>
-            <ol id="ranking-percentual-passada-lista"></ol> </section>
+            
+            </div> </section>
     </div>
 
     <a href="/historico-questoes" style="display: block; text-align: center; margin-top: 30px; font-weight: bold;">Voltar ao Histórico</a>

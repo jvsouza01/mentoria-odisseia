@@ -272,3 +272,23 @@ li:last-child {
 .ranking-section ol {
     margin-top: 10px;
 }
+
+/* ======== ESTILO PARA BOTÃO DE AÇÃO (PDF, ETC) ======== */
+.action-button {
+    background-color: var(--primary-green);
+    color: var(--bg-dark);
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0; /* Reseta margens */
+    flex-grow: 0; /* NÃO deixa esticar */
+}
+
+.action-button:hover {
+    background-color: var(--green-hover);
+}

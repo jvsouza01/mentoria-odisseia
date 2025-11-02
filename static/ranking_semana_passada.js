@@ -1,7 +1,9 @@
+// Garante que as bibliotecas jsPDF e html2canvas estejam carregadas
 const { jsPDF } = window.jspdf;
+// html2canvas é adicionado globalmente
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Seletores para os elementos do ranking
+    // IDs para as Listas (Demais Colocações)
     const rankingQtdPassadaLista = document.getElementById('ranking-quantidade-passada-lista');
     const rankingPercPassadaLista = document.getElementById('ranking-percentual-passada-lista');
     
@@ -13,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function carregarRankingSemanaPassada() {
         try {
             const response = await fetch('/api/rankings/semana-passada');
+            if (!response.ok) {
+                 throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const rankings = await response.json();
             
             // --- Lógica para Ranking de Quantidade ---
@@ -45,11 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         li.textContent = `${index + 4}. ${item.nome} - ${item.total} questões`;
                         rankingQtdPassadaLista.appendChild(li);
                     });
-                } else if (top3Qtd.length >= 1) {
-                    // Opcional: rankingQtdPassadaLista.innerHTML = '<li>-- Fim da lista --</li>';
                 }
             } else {
-                rankingQtdPassadaLista.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda.</li>';
+                rankingQtdPassadaLista.innerHTML = '<li>Nenhum registro encontrado para esta semana.</li>';
             }
 
             // --- Lógica para Ranking de Percentual ---
@@ -82,11 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         li.textContent = `${index + 4}. ${item.nome} - ${parseFloat(item.percentual).toFixed(2)}%`;
                         rankingPercPassadaLista.appendChild(li);
                     });
-                } else if (top3Perc.length >= 1) {
-                    // Opcional: rankingPercPassadaLista.innerHTML = '<li>-- Fim da lista --</li>';
                 }
             } else {
-                rankingPercPassadaLista.innerHTML = '<li>Nenhum registro encontrado para esta semana ainda (ou mínimo não atingido).</li>';
+                rankingPercPassadaLista.innerHTML = '<li>Nenhum registro encontrado (ou mínimo não atingido).</li>';
             }
 
         } catch (error) {
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             scale: 2,
             backgroundColor: null,
             onclone: (documentClone) => {
+                // Força o fundo escuro do card no print do PDF
                 documentClone.getElementById('card-semana-passada').style.backgroundColor = 'var(--card-dark)';
             }
         }).then(canvas => {

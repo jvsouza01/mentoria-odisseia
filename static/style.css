@@ -292,3 +292,69 @@ li:last-child {
 .action-button:hover {
     background-color: var(--green-hover);
 }
+/* ======== ESTILOS PARA RANKING EXPANSÍVEL ======== */
+
+/* Torna o item da lista (li) clicável e adiciona espaço */
+#lista-ranking-simulado li {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    padding: 12px 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: block; /* Garante que o <li> ocupe a linha toda */
+    flex-direction: column; /* Organiza o conteúdo interno verticalmente */
+}
+
+/* Um leve destaque ao passar o mouse */
+#lista-ranking-simulado li:hover {
+    background-color: var(--input-bg);
+}
+
+/* O cabeçalho principal (Nome e Nota) */
+.ranking-item-header {
+    font-size: 1.1em;
+}
+
+/* Opcional: Adiciona uma seta que gira */
+.ranking-item-header::after {
+    content: '🔽';
+    font-size: 0.7em;
+    margin-left: 10px;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+/* Remove a seta se o item não tiver detalhes */
+.ranking-item-header.no-details::after {
+    content: '';
+}
+
+/* Gira a seta quando a classe 'expanded' é adicionada */
+#lista-ranking-simulado li.expanded .ranking-item-header::after {
+    transform: rotate(180deg);
+}
+
+/* A área de detalhes (começa escondida) */
+.ranking-item-details {
+    display: none;
+    padding-left: 20px;
+    margin-top: 10px;
+    border-left: 2px solid var(--primary-green);
+}
+
+/* Mostra a área de detalhes quando a classe 'show' é adicionada */
+.ranking-item-details.show {
+    display: block;
+}
+
+.ranking-item-details p, .ranking-item-details ul {
+    margin: 5px 0;
+    font-size: 0.95em;
+    color: var(--text-primary);
+}
+.ranking-item-details li {
+    font-size: 0.9em;
+    padding: 2px 0;
+    margin-bottom: 2px;
+    border: none;
+}

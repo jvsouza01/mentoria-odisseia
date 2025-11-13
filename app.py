@@ -294,9 +294,28 @@ def ranking_simulados(): return render_template('ranking_simulados.html')
 
 @app.route('/api/simulados/<int:simulado_id>/ranking', methods=['GET'])
 def get_ranking_por_simulado(simulado_id):
-    # ... (código não muda, por enquanto só mostra a nota) ...
-    resultados = db.session.query(ResultadosSimulados.nota, Alunos.nome).join(Alunos).filter(ResultadosSimulados.simulado_id == simulado_id).order_by(ResultadosSimulados.nota.desc()).all()
-    ranking = [{'aluno_nome': nome, 'nota': nota} for nota, nome in resultados]
+    """Retorna o ranking de notas para um simulado específico, INCLUINDO TEMPOS."""
+    
+    # A consulta agora busca o objeto 'ResultadosSimulados' inteiro e o nome do Aluno
+    resultados = db.session.query(
+            ResultadosSimulados,
+            Alunos.nome
+        ).join(Alunos).filter(
+            ResultadosSimulados.simulado_id == simulado_id
+        ).order_by(
+            ResultadosSimulados.nota.desc()
+        ).all()
+
+    # Monta um JSON mais rico com os novos dados
+    ranking = []
+    for resultado, nome in resultados:
+        ranking.append({
+            'aluno_nome': nome,
+            'nota': resultado.nota,
+            'tempo_total_gasto': resultado.tempo_total_gasto, # Envia o tempo total
+            'tempos_por_materia': resultado.tempos_por_materia   # Envia o JSON dos tempos
+        })
+    
     return jsonify(ranking)
 
 # --- ROTAS DE CONSULTA INDIVIDUAL (Não muda) ---

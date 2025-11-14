@@ -64,15 +64,17 @@ class ResultadosSimulados(db.Model):
 # --- TABELA 'TemposSimulado' FOI REMOVIDA ---
 # (Não precisamos mais dela)
 
-# --- ROTA DE SETUP (Não muda, mas vai aplicar as novas colunas) ---
+# --- ROTA DE SETUP ---
 @app.route('/_iniciar_banco_de_dados_uma_vez')
 def iniciar_banco():
     try:
-        db.create_all()
-        # ... (lógica de popular alunos e empresas) ...
-        # (O código da sua rota de setup continua aqui)
+        # 1. APAGA TUDO (FORÇA UMA REINSTALAÇÃO LIMPA)
+        db.drop_all()
         
-        # 2. Popula a lista de ALUNOS
+        # 2. Cria todas as tabelas (AGORA COM A ESTRUTURA CORRETA)
+        db.create_all()
+        
+        # 3. Popula a lista de ALUNOS
         lista_alunos_final = [
             'Alan vitor', 'Andressa', 'Dann Silva', 'Davy', 'Dias', 'Dhomini', 
             'Eduardo', 'Eliaquim', 'Ell Souza', 'Ezequias', 'Flavia Andrade', 
@@ -88,7 +90,7 @@ def iniciar_banco():
                 db.session.add(Alunos(nome=nome_aluno))
                 alunos_adicionados += 1
         
-        # 3. Popula a lista de EMPRESAS
+        # 4. Popula a lista de EMPRESAS
         lista_de_empresas = ["Quad", "rumo", "projeto missão", "projeto caveira"]
         empresas_adicionadas = 0
         for nome_empresa in lista_de_empresas:
@@ -98,11 +100,11 @@ def iniciar_banco():
 
         db.session.commit()
         
-        return f"Banco de dados inicializado! Tabelas criadas/atualizadas. {alunos_adicionados} novos alunos adicionados. {empresas_adicionadas} novas empresas adicionadas.", 200
+        return f"Banco de dados REINICIADO! Tabelas criadas. {alunos_adicionados} alunos adicionados. {empresas_adicionadas} empresas adicionadas.", 200
             
     except Exception as e:
         db.session.rollback()
-        return f"Ocorreu um erro: {e}", 500
+        return f"Ocorreu um erro ao reiniciar o banco: {e}", 500
 
 
 # --- FUNÇÃO HELPER DE FUSO HORÁRIO (Não muda) ---

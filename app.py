@@ -58,14 +58,28 @@ class ResultadosSimulados(db.Model):
 @app.route('/_iniciar_banco_de_dados_uma_vez')
 def iniciar_banco():
     try:
-        # ATENÇÃO: db.drop_all() APAGA TUDO. Use apenas se quiser resetar o banco.
-        # Se quiser manter os dados, comente a linha abaixo (mas pode dar erro de coluna fantasma).
-        # Para garantir que as colunas de tempo sumam, o ideal é recriar.
-        db.drop_all() 
+        # --- MUDANÇA CRUCIAL AQUI ---
+        # NÃO usamos db.drop_all() para não apagar as questões!
         
+        # Tentamos apagar APENAS as tabelas de simulado para recriá-las corretamente
+        # Usamos try/except para não dar erro se elas já não existirem
+        try:
+            ResultadosSimulados.__table__.drop(db.engine)
+        except Exception as e:
+            print(f"Aviso ao dropar ResultadosSimulados: {e}")
+
+        try:
+            Simulados.__table__.drop(db.engine)
+        except Exception as e:
+            print(f"Aviso ao dropar Simulados: {e}")
+
+        # Recria as tabelas (O SQLAlchemy só cria o que está faltando)
+        # As tabelas 'alunos' e 'registros_questoes' ficarão INTACTAS
         db.create_all()
         
-        # Popula ALUNOS
+        # --- Populando dados básicos (sem duplicar) ---
+        
+        # 1. Alunos (Verifica antes de adicionar)
         lista_alunos_final = [
             'Alan vitor', 'Andressa', 'Dann Silva', 'Davy', 'Dias', 'Dhomini', 
             'Eduardo', 'Eliaquim', 'Ell Souza', 'Ezequias', 'Flavia Andrade', 
@@ -74,18 +88,23 @@ def iniciar_banco():
             'Mariana', 'Matheus Silva', 'MV', 'Nelson', 'Rafael', 'Rodrigo', 
             'Samuel', 'Santiago', 'Silva', 'Vinicius Felipe', 'Vithor', 'Yan'
         ]
+        alunos_adicionados = 0
         for nome_aluno in lista_alunos_final:
             if not Alunos.query.filter_by(nome=nome_aluno).first():
                 db.session.add(Alunos(nome=nome_aluno))
+                alunos_adicionados += 1
         
-        # Popula EMPRESAS
+        # 2. Empresas (Verifica antes de adicionar)
         lista_de_empresas = ["Quad", "rumo", "projeto missão", "projeto caveira"]
+        empresas_adicionadas = 0
         for nome_empresa in lista_de_empresas:
             if not Empresas.query.filter_by(nome=nome_empresa).first():
                 db.session.add(Empresas(nome=nome_empresa))
+                empresas_adicionadas += 1
 
         db.session.commit()
-        return "Banco de dados REINICIADO (Limpo)! Tabelas criadas sem cronômetro.", 200
+        
+        return f"Manutenção concluída! Tabelas de Simulado recriadas. Questões preservadas. {alunos_adicionados} alunos e {empresas_adicionadas} empresas adicionados.", 200
             
     except Exception as e:
         db.session.rollback()

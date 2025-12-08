@@ -167,41 +167,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // --- FORMULÁRIO DE RESULTADO (MODIFICADO) ---
+    // --- FORMULÁRIO DE RESULTADO (SIMPLIFICADO) ---
     formAddResultado.addEventListener('submit', async (event) => {
         event.preventDefault();
         
-        // 1. Pega os dados básicos
+        // Pega APENAS os dados básicos
         const dados = {
             aluno_id: document.getElementById('resultado-aluno').value,
             simulado_id: document.getElementById('resultado-simulado').value,
             nota: document.getElementById('resultado-nota').value
         };
 
-        // 2. Pega os dados de tempo (opcionais)
-        const tempoTotal = document.getElementById('tempo-total').value;
-        if (tempoTotal) {
-            dados.tempo_total_gasto = parseInt(tempoTotal);
-        }
-
-        // 3. Monta o objeto de tempos por matéria
-        const temposPorMateria = {};
-        const inputsMateria = document.querySelectorAll('.tempo-materia');
-        let algumTempoDetalhado = false;
-        inputsMateria.forEach(input => {
-            if (input.value) {
-                const materiaNome = input.dataset.materia;
-                temposPorMateria[materiaNome] = parseInt(input.value);
-                algumTempoDetalhado = true;
-            }
-        });
-        
-        // Só envia o objeto se ele não estiver vazio
-        if (algumTempoDetalhado) {
-            dados.tempos_por_materia = temposPorMateria;
-        }
-
-        // 4. Envia tudo para o backend
         try {
             const response = await fetch('/api/resultados', {
                 method: 'POST',
@@ -219,14 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Erro ao lançar nota:', error);
+            alert('Erro de comunicação com o servidor.');
         }
     });
 
-    // Lógica do botão de apagar
+    // Botão apagar
     listaUltimasNotas.addEventListener('click', async (event) => {
         if (event.target.classList.contains('delete-btn')) {
             const resultadoId = event.target.dataset.id;
-            
             if (confirm('Tem certeza que deseja apagar esta nota? A ação não pode ser desfeita.')) {
                 try {
                     const response = await fetch(`/api/resultados/${resultadoId}`, {
@@ -244,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Inicialização ---
+    // Inicialização
     function carregarTudo() {
         carregarAlunos();
         carregarEmpresas();

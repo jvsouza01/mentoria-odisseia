@@ -10,13 +10,18 @@
     <h1>Rankings de Simulados</h1>
 
     <div class="container" style="flex-direction: column; align-items: center;">
+        
         <section class="form-section" style="width: 100%; max-width: 800px;">
             <h2>Selecionar Simulado</h2>
             <form id="form-filtro-simulado">
                 <label for="filtro-simulado">Escolha o simulado:</label>
-                <select id="filtro-simulado" required>
+                <select id="filtro-simulado">
                     <option value="">Carregando simulados...</option>
                 </select>
+                
+                <button type="button" id="btn-ver-ranking" style="margin-top: 15px; width: 100%; padding: 12px; background-color: var(--primary-green); color: var(--bg-dark); font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">
+                    Ver Ranking
+                </button>
             </form>
         </section>
 

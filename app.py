@@ -204,10 +204,18 @@ def get_alunos_com_time():
 def migrar_times():
     try:
         with db.session.connection() as conn:
-            conn.execute(text('ALTER TABLE alunos ADD COLUMN time VARCHAR(20) DEFAULT "Sem Time"'))
-        return "Coluna 'time' adicionada com sucesso!", 200
+            
+            conn.execute(text("ALTER TABLE alunos ADD COLUMN time VARCHAR(20) DEFAULT 'Sem Time'"))
+            
+            
+            db.session.commit()
+            
+        return "Sucesso! Coluna 'time' adicionada e definida como 'Sem Time' para todos.", 200
     except Exception as e:
-        return f"Erro (talvez a coluna já exista): {e}", 500
+        
+        if "already exists" in str(e):
+             return "A coluna 'time' já existe, tudo certo.", 200
+        return f"Erro ao adicionar coluna: {e}", 500
     
 
 @app.route('/api/alunos', methods=['GET'])

@@ -162,35 +162,45 @@ def atualizar_time_aluno():
 
 @app.route('/api/batalha/placar', methods=['GET'])
 def get_placar_times():
-    # Calcula o total de questões e acertos por time
-    # Time Alpha
-    sql_alpha = text("""
-        SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
-        FROM registros_questoes r 
-        JOIN alunos a ON a.id = r.aluno_id 
-        WHERE a.time = 'Alpha'
-    """)
-    # Time Omega
-    sql_omega = text("""
-        SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
-        FROM registros_questoes r 
-        JOIN alunos a ON a.id = r.aluno_id 
-        WHERE a.time = 'Omega'
-    """)
+        # 1. Define o início da semana (Domingo ou Segunda, conforme sua função helper)
+        start_date = get_start_of_week()
+        
+        # 2. Prepara os parâmetros para o SQL
+        params = {'start_date': start_date}
 
-    res_alpha = db.session.connection().execute(sql_alpha).first()
-    res_omega = db.session.connection().execute(sql_omega).first()
+        # SQL Time Alpha (FILTRADO POR DATA)
+        sql_alpha = text("""
+            SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
+            FROM registros_questoes r 
+            JOIN alunos a ON a.id = r.aluno_id 
+            WHERE a.time = 'Alpha' 
+            AND r.data_registro >= :start_date
+        """)
 
-    def processar_dados(res):
-        total = res.total_q if res and res.total_q else 0
-        acertos = res.total_a if res and res.total_a else 0
-        acc = (acertos / total * 100) if total > 0 else 0
-        return {'questoes': total, 'acertos': acertos, 'precisao': round(acc, 2)}
+        # SQL Time Omega (FILTRADO POR DATA)
+        sql_omega = text("""
+            SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
+            FROM registros_questoes r 
+            JOIN alunos a ON a.id = r.aluno_id 
+            WHERE a.time = 'Omega' 
+            AND r.data_registro >= :start_date
+        """)
+        
+        # 3. Executa as consultas passando a data
+        conn = db.session.connection()
+        res_alpha = conn.execute(sql_alpha, params).first()
+        res_omega = conn.execute(sql_omega, params).first()
+        
+        def processar_dados(res):
+            total = res.total_q if res and res.total_q else 0
+            acertos = res.total_a if res and res.total_a else 0
+            acc = (acertos / total * 100) if total > 0 else 0
+            return {'questoes': total, 'acertos': acertos, 'precisao': round(acc, 2)}
 
-    return jsonify({
-        'Alpha': processar_dados(res_alpha),
-        'Omega': processar_dados(res_omega)
-    })
+        return jsonify({
+            'Alpha': processar_dados(res_alpha),
+            'Omega': processar_dados(res_omega)
+        })
 
 # Atualize a API de alunos para retornar o time atual também
 @app.route('/api/alunos-com-time', methods=['GET'])

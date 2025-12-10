@@ -15,6 +15,9 @@
         <a href="/ranking-simulados" class="nav-button">Rankings de Simulados</a>
         <a href="/consulta-desempenho" class="nav-button">Consulta Individual</a>
         <a href="/gerenciar-simulados" class="nav-button">Gerenciar Simulados</a>
+        
+        <a href="/batalha-times" class="nav-button" style="border: 1px solid var(--primary-green); color: var(--primary-green);">⚔️ Batalha de Times</a>
+        <a href="/gerenciar-times" class="nav-button" style="font-size: 0.9em;">⚙️ Times (Admin)</a>
     </nav>
 
     <div class="container" style="flex-direction: column; align-items: center; width: 100%; max-width: 1400px;">
@@ -40,7 +43,9 @@
                 </div>
             </div>
             <h4>Demais Colocações (Quantidade):</h4>
-            <ol id="ranking-quantidade"></ol> <h3 style="margin-top: 40px;">📊 Top 3 - % de Acerto (Semana)</h3>
+            <ol id="ranking-quantidade"></ol> 
+            
+            <h3 style="margin-top: 40px;">📊 Top 3 - % de Acerto (Semana)</h3>
              <div class="ranking-podium" id="podium-percentual">
                 <div class="podium-spot spot-2">
                     <div class="podium-rank">#2</div>
@@ -59,7 +64,10 @@
                 </div>
             </div>
             <h4>Demais Colocações (% Acerto):</h4>
-            <ol id="ranking-percentual"></ol> </section>
-        </div> <script src="{{ url_for('static', filename='script.js') }}"></script>
+            <ol id="ranking-percentual"></ol> 
+        </section>
+    </div> 
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

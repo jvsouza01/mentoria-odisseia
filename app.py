@@ -21,6 +21,7 @@ db = SQLAlchemy(app)
 class Alunos(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), unique=True, nullable=False)
+    time = db.Column(db.String(20), nullable=True, default='Sem Time') 
 
 class RegistrosQuestoes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -137,6 +138,78 @@ def ranking_semana_passada(): return render_template('ranking_semana_passada.htm
 def ranking_geral(): return render_template('ranking_geral.html')
 
 # --- ROTAS DE API DE QUESTÕES ---
+
+# --- ROTAS DE TIMES ---
+
+@app.route('/gerenciar-times')
+def gerenciar_times():
+    return render_template('gerenciar_times.html')
+
+@app.route('/batalha-times')
+def batalha_times():
+    return render_template('batalha_times.html')
+
+@app.route('/api/alunos/atualizar-time', methods=['POST'])
+def atualizar_time_aluno():
+    dados = request.get_json()
+    aluno = Alunos.query.get(dados['aluno_id'])
+    if not aluno:
+        return jsonify({'erro': 'Aluno não encontrado'}), 404
+
+    aluno.time = dados['time']
+    db.session.commit()
+    return jsonify({'status': 'sucesso'})
+
+@app.route('/api/batalha/placar', methods=['GET'])
+def get_placar_times():
+    # Calcula o total de questões e acertos por time
+    # Time Alpha
+    sql_alpha = text("""
+        SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
+        FROM registros_questoes r 
+        JOIN alunos a ON a.id = r.aluno_id 
+        WHERE a.time = 'Alpha'
+    """)
+    # Time Omega
+    sql_omega = text("""
+        SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
+        FROM registros_questoes r 
+        JOIN alunos a ON a.id = r.aluno_id 
+        WHERE a.time = 'Omega'
+    """)
+
+    res_alpha = db.session.connection().execute(sql_alpha).first()
+    res_omega = db.session.connection().execute(sql_omega).first()
+
+    def processar_dados(res):
+        total = res.total_q if res and res.total_q else 0
+        acertos = res.total_a if res and res.total_a else 0
+        acc = (acertos / total * 100) if total > 0 else 0
+        return {'questoes': total, 'acertos': acertos, 'precisao': round(acc, 2)}
+
+    return jsonify({
+        'Alpha': processar_dados(res_alpha),
+        'Omega': processar_dados(res_omega)
+    })
+
+# Atualize a API de alunos para retornar o time atual também
+@app.route('/api/alunos-com-time', methods=['GET'])
+def get_alunos_com_time():
+    alunos = Alunos.query.order_by(Alunos.nome).all()
+    return jsonify([{'id': a.id, 'nome': a.nome, 'time': a.time} for a in alunos])
+
+
+
+@app.route('/_migrar_banco_adicionar_times')
+def migrar_times():
+    try:
+        with db.session.connection() as conn:
+            conn.execute(text('ALTER TABLE alunos ADD COLUMN time VARCHAR(20) DEFAULT "Sem Time"'))
+        return "Coluna 'time' adicionada com sucesso!", 200
+    except Exception as e:
+        return f"Erro (talvez a coluna já exista): {e}", 500
+    
+
 @app.route('/api/alunos', methods=['GET'])
 def get_alunos():
     alunos = Alunos.query.order_by(Alunos.nome).all()

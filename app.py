@@ -161,45 +161,51 @@ def atualizar_time_aluno():
     return jsonify({'status': 'sucesso'})
 
 @app.route('/api/batalha/placar', methods=['GET'])
-def get_placar_times():
-        # 1. Define o início da semana (Domingo ou Segunda, conforme sua função helper)
+    def get_placar_times():
         start_date = get_start_of_week()
-        
-        # 2. Prepara os parâmetros para o SQL
         params = {'start_date': start_date}
-
-        # SQL Time Alpha (FILTRADO POR DATA)
-        sql_alpha = text("""
-            SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
-            FROM registros_questoes r 
-            JOIN alunos a ON a.id = r.aluno_id 
-            WHERE a.time = 'Alpha' 
-            AND r.data_registro >= :start_date
-        """)
-
-        # SQL Time Omega (FILTRADO POR DATA)
-        sql_omega = text("""
-            SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
-            FROM registros_questoes r 
-            JOIN alunos a ON a.id = r.aluno_id 
-            WHERE a.time = 'Omega' 
-            AND r.data_registro >= :start_date
-        """)
-        
-        # 3. Executa as consultas passando a data
         conn = db.session.connection()
-        res_alpha = conn.execute(sql_alpha, params).first()
-        res_omega = conn.execute(sql_omega, params).first()
-        
-        def processar_dados(res):
-            total = res.total_q if res and res.total_q else 0
-            acertos = res.total_a if res and res.total_a else 0
-            acc = (acertos / total * 100) if total > 0 else 0
-            return {'questoes': total, 'acertos': acertos, 'precisao': round(acc, 2)}
+
+        # --- FUNÇÃO AUXILIAR PARA BUSCAR TOTAIS E RANKING ---
+        def buscar_dados_time(nome_time):
+            # 1. Total Geral do Time
+            sql_total = text("""
+                SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
+                FROM registros_questoes r 
+                JOIN alunos a ON a.id = r.aluno_id 
+                WHERE a.time = :time 
+                AND r.data_registro >= :start_date
+            """)
+            res_total = conn.execute(sql_total, {'time': nome_time, 'start_date': start_date}).first()
+            
+            total_q = res_total.total_q if res_total and res_total.total_q else 0
+            total_a = res_total.total_a if res_total and res_total.total_a else 0
+            precisao = (total_a / total_q * 100) if total_q > 0 else 0
+
+            # 2. Ranking Individual dos Membros
+            sql_ranking = text("""
+                SELECT a.nome, SUM(r.quantidade_questoes) as qtd
+                FROM registros_questoes r
+                JOIN alunos a ON a.id = r.aluno_id
+                WHERE a.time = :time
+                AND r.data_registro >= :start_date
+                GROUP BY a.nome
+                ORDER BY qtd DESC
+            """)
+            res_ranking = conn.execute(sql_ranking, {'time': nome_time, 'start_date': start_date}).mappings().all()
+            
+            lista_membros = [{'nome': row.nome, 'qtd': row.qtd} for row in res_ranking]
+
+            return {
+                'questoes': total_q,
+                'acertos': total_a,
+                'precisao': round(precisao, 2),
+                'ranking': lista_membros # Lista nova incluída aqui
+            }
 
         return jsonify({
-            'Alpha': processar_dados(res_alpha),
-            'Omega': processar_dados(res_omega)
+            'Alpha': buscar_dados_time('Alpha'),
+            'Omega': buscar_dados_time('Omega')
         })
 
 # Atualize a API de alunos para retornar o time atual também

@@ -5,19 +5,56 @@
     <title>Batalha de Times - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
+        /* Estilos Gerais */
         .battle-container { display: flex; gap: 20px; width: 100%; max-width: 1000px; margin-top: 20px; }
-        .team-card { flex: 1; padding: 20px; border-radius: 10px; text-align: center; color: white; }
-        .alpha-card { background: linear-gradient(135deg, #1e3a8a, #3b82f6); border: 2px solid #60a5fa; }
-        .omega-card { background: linear-gradient(135deg, #7f1d1d, #ef4444); border: 2px solid #fca5a5; }
-        .score-big { font-size: 3em; font-weight: bold; margin: 10px 0; }
-        .stat-label { font-size: 0.9em; opacity: 0.9; }
-        .vs-badge { font-size: 2em; font-weight: bold; align-self: center; color: var(--primary-green); }
+        .team-card { flex: 1; padding: 20px; border-radius: 10px; text-align: center; color: white; position: relative; overflow: hidden; }
+        
+        /* Cores dos Times */
+        .alpha-card { background: linear-gradient(135deg, #1e3a8a, #3b82f6); border: 2px solid #60a5fa; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .omega-card { background: linear-gradient(135deg, #7f1d1d, #ef4444); border: 2px solid #fca5a5; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        
+        /* Tipografia dos Cards */
+        .score-big { font-size: 3em; font-weight: bold; margin: 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .stat-label { font-size: 0.9em; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
+        .vs-badge { font-size: 2.5em; font-weight: 900; align-self: center; color: var(--primary-green); text-shadow: 0 0 10px rgba(0, 255, 127, 0.5); font-style: italic; }
+
+        /* --- NOVA SEÇÃO: RANKINGS INDIVIDUAIS --- */
+        .rankings-wrapper {
+            display: flex; gap: 20px; width: 100%; max-width: 1000px; margin-top: 30px;
+        }
+        .ranking-col {
+            flex: 1;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #444;
+        }
+        .ranking-col h3 { text-align: center; margin-bottom: 15px; font-size: 1.2em; border-bottom: 2px solid; padding-bottom: 10px; }
+        
+        /* Cores específicas dos títulos das listas */
+        .alpha-title { color: #60a5fa; border-color: #60a5fa !important; }
+        .omega-title { color: #fca5a5; border-color: #fca5a5 !important; }
+
+        .membro-list { list-style: none; padding: 0; margin: 0; }
+        .membro-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; margin-bottom: 5px; background-color: rgba(255,255,255,0.03);
+            border-radius: 5px; border-left: 3px solid transparent; transition: transform 0.2s;
+        }
+        .membro-item:hover { transform: translateX(5px); background-color: rgba(255,255,255,0.08); }
+        
+        .alpha-item { border-left-color: #3b82f6; }
+        .omega-item { border-left-color: #ef4444; }
+
+        .membro-qtd { font-weight: bold; font-size: 1.1em; }
+        .membro-nome { font-size: 0.95em; color: #eee; }
     </style>
 </head>
 <body>
-    <h1>Batalha de Times</h1>
+    <h1>Batalha de Times (Semanal)</h1>
     
     <div class="container" style="flex-direction: column; align-items: center;">
+        
         <div class="battle-container">
             <div class="team-card alpha-card">
                 <h2>TIME ALPHA</h2>
@@ -39,11 +76,29 @@
                 <div class="stat-label">Precisão de Acertos</div>
             </div>
         </div>
+
+        <div class="rankings-wrapper">
+            <div class="ranking-col">
+                <h3 class="alpha-title">Membros Alpha</h3>
+                <ul id="lista-alpha" class="membro-list">
+                    <li>Carregando...</li>
+                </ul>
+            </div>
+
+            <div class="ranking-col">
+                <h3 class="omega-title">Membros Omega</h3>
+                <ul id="lista-omega" class="membro-list">
+                    <li>Carregando...</li>
+                </ul>
+            </div>
+        </div>
         
-        <button onclick="carregarPlacar()" style="margin-top: 20px; padding: 10px 20px; cursor: pointer;">Atualizar Placar</button>
+        <button onclick="carregarPlacar()" style="margin-top: 30px; padding: 12px 25px; cursor: pointer; font-size: 1em; font-weight: bold; background-color: var(--input-bg); color: white; border: 1px solid #666; border-radius: 5px;">
+            🔄 Atualizar Placar
+        </button>
     </div>
 
-    <a href="/" style="margin-top: 20px;">Voltar</a>
+    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
 
     <script>
         async function carregarPlacar() {
@@ -51,19 +106,54 @@
                 const res = await fetch('/api/batalha/placar');
                 const dados = await res.json();
 
-                // Atualiza Alpha
-                animateValue("alpha-questoes", 0, dados.Alpha.questoes, 1000);
+                // 1. Atualiza Cards Principais (Totais)
+                animateValue("alpha-questoes", document.getElementById("alpha-questoes").innerText, dados.Alpha.questoes, 1000);
                 document.getElementById('alpha-precisao').innerText = dados.Alpha.precisao + "%";
 
-                // Atualiza Omega
-                animateValue("omega-questoes", 0, dados.Omega.questoes, 1000);
+                animateValue("omega-questoes", document.getElementById("omega-questoes").innerText, dados.Omega.questoes, 1000);
                 document.getElementById('omega-precisao').innerText = dados.Omega.precisao + "%";
+
+                // 2. Atualiza Listas Individuais
+                atualizarLista('lista-alpha', dados.Alpha.ranking, 'alpha-item');
+                atualizarLista('lista-omega', dados.Omega.ranking, 'omega-item');
 
             } catch (e) { console.error(e); }
         }
 
-        // Efeito bonitinho de contagem
+        function atualizarLista(elementId, lista, itemClass) {
+            const ul = document.getElementById(elementId);
+            ul.innerHTML = ''; // Limpa a lista
+
+            if (lista.length === 0) {
+                ul.innerHTML = '<li style="text-align:center; color:#777; padding:10px;">Nenhum registro essa semana</li>';
+                return;
+            }
+
+            lista.forEach((membro, index) => {
+                const li = document.createElement('li');
+                li.className = `membro-item ${itemClass}`;
+                
+                // Adiciona medalhas para o Top 3
+                let prefixo = `<span style="font-weight:bold; color:#777; width:20px;">${index + 1}.</span>`;
+                if (index === 0) prefixo = '🥇';
+                if (index === 1) prefixo = '🥈';
+                if (index === 2) prefixo = '🥉';
+
+                li.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        ${prefixo}
+                        <span class="membro-nome">${membro.nome}</span>
+                    </div>
+                    <span class="membro-qtd">${membro.qtd}</span>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        // Função de Animação de Números
         function animateValue(id, start, end, duration) {
+            start = parseInt(start) || 0;
+            end = parseInt(end) || 0;
             if (start === end) return;
             const obj = document.getElementById(id);
             let startTimestamp = null;
@@ -77,8 +167,7 @@
         }
 
         carregarPlacar();
-        // Atualiza a cada 30 segundos automaticamente
-        setInterval(carregarPlacar, 30000);
+        setInterval(carregarPlacar, 30000); // Atualiza a cada 30s
     </script>
 </body>
 </html>

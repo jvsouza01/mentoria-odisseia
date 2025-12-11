@@ -161,7 +161,7 @@ def atualizar_time_aluno():
     return jsonify({'status': 'sucesso'})
 
 @app.route('/api/batalha/placar', methods=['GET'])
-    def get_placar_times():
+def get_placar_times():
         start_date = get_start_of_week()
         params = {'start_date': start_date}
         conn = db.session.connection()

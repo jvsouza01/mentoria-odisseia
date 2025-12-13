@@ -346,14 +346,22 @@ def get_rankings_semana_passada():
     start_of_current_week = get_start_of_week()
     end_of_last_week = start_of_current_week - timedelta(seconds=1)
     start_of_last_week = start_of_current_week - timedelta(days=7)
+    
     conn = db.session.connection()
     params = {'start': start_of_last_week, 'end': end_of_last_week}
-    query_qtd = text(f'SELECT a.nome, SUM(r.quantidade_questoes) as total FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro BETWEEN :start AND :end GROUP BY a.nome ORDER BY total DESC LIMIT 20')
+    
+    # 1. Ranking de Quantidade (SEM LIMITE - Mostra todos)
+    query_qtd = text('SELECT a.nome, SUM(r.quantidade_questoes) as total FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro BETWEEN :start AND :end GROUP BY a.nome ORDER BY total DESC')
     ranking_quantidade = conn.execute(query_qtd, params).mappings().all()
-    query_perc = text(f'SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro BETWEEN :start AND :end GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20 ORDER BY percentual DESC LIMIT 20')
+    
+    # 2. Ranking de Percentual (SEM LIMITE)
+    query_perc = text('SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro BETWEEN :start AND :end GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20 ORDER BY percentual DESC')
     ranking_percentual = conn.execute(query_perc, params).mappings().all()
-    return jsonify({'quantidade': [dict(row) for row in ranking_quantidade], 'percentual': [dict(row) for row in ranking_percentual]})
-
+    
+    return jsonify({
+        'quantidade': [dict(row) for row in ranking_quantidade], 
+        'percentual': [dict(row) for row in ranking_percentual]
+    })
 # --- ROTAS DE GERENCIAMENTO DE SIMULADOS ---
 @app.route('/gerenciar-simulados')
 def gerenciar_simulados():

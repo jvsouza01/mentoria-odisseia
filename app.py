@@ -233,6 +233,67 @@ def migrar_times():
              return "A coluna 'time' já existe, tudo certo.", 200
         return f"Erro ao adicionar coluna: {e}", 500
     
+# --- ROTAS DE GERENCIAMENTO DE ALUNOS ---
+
+@app.route('/gerenciar-alunos')
+def gerenciar_alunos_page():
+    return render_template('gerenciar_alunos.html')
+
+@app.route('/api/alunos', methods=['POST'])
+def criar_aluno():
+    dados = request.get_json()
+    nome = dados.get('nome', '').strip()
+    time = dados.get('time', 'Sem Time')
+    
+    if not nome:
+        return jsonify({'erro': 'Nome é obrigatório'}), 400
+    
+    if Alunos.query.filter_by(nome=nome).first():
+        return jsonify({'erro': 'Já existe um aluno com esse nome'}), 409
+
+    novo_aluno = Alunos(nome=nome, time=time)
+    db.session.add(novo_aluno)
+    db.session.commit()
+    return jsonify({'status': 'sucesso', 'mensagem': 'Aluno criado!'}), 201
+
+@app.route('/api/alunos/<int:id>', methods=['PUT'])
+def editar_aluno(id):
+    aluno = Alunos.query.get_or_404(id)
+    dados = request.get_json()
+    
+    novo_nome = dados.get('nome', '').strip()
+    novo_time = dados.get('time')
+
+    if novo_nome:
+        # Verifica se o nome já existe em OUTRO aluno
+        existente = Alunos.query.filter_by(nome=novo_nome).first()
+        if existente and existente.id != id:
+            return jsonify({'erro': 'Já existe outro aluno com esse nome'}), 409
+        aluno.nome = novo_nome
+    
+    if novo_time:
+        aluno.time = novo_time
+
+    db.session.commit()
+    return jsonify({'status': 'sucesso', 'mensagem': 'Dados atualizados!'})
+
+@app.route('/api/alunos/<int:id>', methods=['DELETE'])
+def deletar_aluno(id):
+    aluno = Alunos.query.get_or_404(id)
+    try:
+        # Nota: Se houver registros vinculados (questões/simulados), 
+        # o banco pode bloquear ou apagar em cascata dependendo da configuração.
+        # Aqui vamos deletar os registros filhos manualmente para garantir limpeza
+        RegistrosQuestoes.query.filter_by(aluno_id=id).delete()
+        ResultadosSimulados.query.filter_by(aluno_id=id).delete()
+        
+        db.session.delete(aluno)
+        db.session.commit()
+        return jsonify({'status': 'sucesso', 'mensagem': 'Aluno e histórico apagados.'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'erro': f'Erro ao apagar: {str(e)}'}), 500    
+    
 
 @app.route('/api/alunos', methods=['GET'])
 def get_alunos():

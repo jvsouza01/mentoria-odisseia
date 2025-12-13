@@ -358,3 +358,28 @@ li:last-child {
     margin-bottom: 2px;
     border: none;
 }
+.nav-button.btn-highlight {
+    border: 1px solid var(--primary-green);
+    color: var(--primary-green);
+    background-color: transparent;
+}
+
+.nav-button.btn-highlight:hover {
+    background-color: var(--primary-green);
+    color: var(--bg-dark);
+}
+
+.nav-button.btn-admin {
+    font-size: 0.9em;     
+    opacity: 0.8;           
+    border-style: dashed;   
+    border-color: #666;     
+    color: #ccc;            
+}
+
+.nav-button.btn-admin:hover {
+    opacity: 1;             
+    background-color: #333; 
+    border-color: var(--primary-green); 
+    color: var(--primary-green);     
+}

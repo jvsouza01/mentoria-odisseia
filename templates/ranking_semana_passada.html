@@ -14,11 +14,41 @@
 
     <div class="container" style="flex-direction: column; align-items: center; gap: 30px;">
         <section id="card-semana-passada" class="ranking-section" style="width: 100%; max-width: 1000px;">
+            
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                  <h2>Ranking da Semana Passada</h2>
                  <button id="btn-pdf-semana-passada" class="action-button">Baixar PDF</button>
             </div>
-            
+
+            <div style="margin-bottom: 30px; background-color: var(--input-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px;">
+                <h3 style="text-align: center; margin-top: 0; color: #fff; border-bottom: 1px solid #444; padding-bottom: 10px;">
+                    ⚔️ Batalha de Times (Semana Passada)
+                </h3>
+                
+                <div style="display: flex; justify-content: space-around; align-items: center; margin-top: 15px; text-align: center;">
+                    <div style="color: #3b82f6;">
+                        <h4 style="margin:0; font-size: 1.2em;">TIME ALPHA</h4>
+                        <div id="bat-alpha-qtd" style="font-size: 2em; font-weight: bold;">---</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">Questões</div>
+                        <div id="bat-alpha-perc" style="font-size: 1em; font-weight: bold; margin-top: 5px;">---%</div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <span style="font-size: 1.5em; font-weight: bold; color: #555;">VS</span>
+                        <div style="margin-top: 10px; background: #333; padding: 5px 15px; border-radius: 5px; border: 1px solid var(--primary-green);">
+                            <span style="font-size: 0.8em; color: #aaa;">VENCEDOR</span><br>
+                            <span id="bat-vencedor" style="font-weight: bold; color: var(--primary-green);">---</span>
+                        </div>
+                    </div>
+
+                    <div style="color: #ef4444;">
+                        <h4 style="margin:0; font-size: 1.2em;">TIME OMEGA</h4>
+                        <div id="bat-omega-qtd" style="font-size: 2em; font-weight: bold;">---</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">Questões</div>
+                        <div id="bat-omega-perc" style="font-size: 1em; font-weight: bold; margin-top: 5px;">---%</div>
+                    </div>
+                </div>
+            </div>
             <div class="ranking-columns-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
             
                 <div class="ranking-column" style="flex: 1; min-width: 350px;">
@@ -67,7 +97,8 @@
                     <ol id="ranking-percentual-passada-lista"></ol>
                 </div>
             
-            </div> </section>
+            </div>
+        </section>
     </div>
 
     <a href="/historico-questoes" style="display: block; text-align: center; margin-top: 30px; font-weight: bold;">Voltar ao Histórico</a>

@@ -343,26 +343,25 @@ def get_rankings_gerais():
 
 @app.route('/api/rankings/semana-passada', methods=['GET'])
 def get_rankings_semana_passada():
-    # 1. Definição das datas
-    hoje = hora_brasil()
-    dias_para_inicio_semana = hoje.weekday()
-    inicio_esta_semana = hoje - timedelta(days=dias_para_inicio_semana)
-    inicio_esta_semana = inicio_esta_semana.replace(hour=0, minute=0, second=0, microsecond=0)
-    
-    fim_semana_passada = inicio_esta_semana - timedelta(seconds=1)
-    inicio_semana_passada = inicio_esta_semana - timedelta(days=7)
+    # 1. Definição das datas (Usando sua função original get_start_of_week)
+    start_of_current_week = get_start_of_week()
+    end_of_last_week = start_of_current_week - timedelta(seconds=1)
+    start_of_last_week = start_of_current_week - timedelta(days=7)
     
     conn = db.session.connection()
-    params = {'start': inicio_semana_passada, 'end': fim_semana_passada}
+    # Parâmetros que serão usados em TODAS as consultas
+    params = {'start': start_of_last_week, 'end': end_of_last_week}
     
-    # 2. Rankings Individuais 
+    # 2. Rankings Individuais (MANTIDO)
+    # Ranking Quantidade
     query_qtd = text('SELECT a.nome, SUM(r.quantidade_questoes) as total FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro BETWEEN :start AND :end GROUP BY a.nome ORDER BY total DESC')
     ranking_quantidade = conn.execute(query_qtd, params).mappings().all()
     
+    # Ranking Percentual
     query_perc = text('SELECT a.nome, (SUM(r.acertos) * 100.0 / SUM(r.quantidade_questoes)) as percentual FROM registros_questoes r JOIN alunos a ON a.id = r.aluno_id WHERE r.data_registro BETWEEN :start AND :end GROUP BY a.nome HAVING SUM(r.quantidade_questoes) > 20 ORDER BY percentual DESC')
     ranking_percentual = conn.execute(query_perc, params).mappings().all()
 
-    #Cálculo da Batalha de Times (Nesse período)
+    # 3. Cálculo da Batalha de Times (NOVO - Ajustado para usar 'params')
     def calcular_time(nome_time):
         sql = text("""
             SELECT SUM(r.quantidade_questoes) as total_q, SUM(r.acertos) as total_a 
@@ -370,7 +369,12 @@ def get_rankings_semana_passada():
             JOIN alunos a ON a.id = r.aluno_id 
             WHERE a.time = :time AND r.data_registro BETWEEN :start AND :end
         """)
-        res = conn.execute(sql, {'time': nome_time, 'start': inicio_semana_passada, 'end': fim_semana_passada}).first()
+        # Adicionamos o nome do time aos parâmetros existentes
+        params_time = params.copy()
+        params_time['time'] = nome_time
+        
+        res = conn.execute(sql, params_time).first()
+        
         total_q = res.total_q if res and res.total_q else 0
         total_a = res.total_a if res and res.total_a else 0
         precisao = (total_a / total_q * 100) if total_q > 0 else 0
@@ -379,7 +383,7 @@ def get_rankings_semana_passada():
     alpha = calcular_time('Alpha')
     omega = calcular_time('Omega')
 
-    # Define vencedor baseado em quantidade
+    # Define vencedor (baseado em quantidade)
     vencedor = "EMPATE"
     if alpha['questoes'] > omega['questoes']: vencedor = "ALPHA 🔵"
     elif omega['questoes'] > alpha['questoes']: vencedor = "OMEGA 🔴"

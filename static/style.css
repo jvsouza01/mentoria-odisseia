@@ -384,37 +384,23 @@ li:last-child {
     color: var(--primary-green);     
 }
 @media print {
-    @page { size: A4; margin: 10mm; }
-    
-    body {
-        background-color: #fff !important;
-        color: #000 !important;
-        -webkit-print-color-adjust: exact;
-    }
+  /* Remove as margens da página */
+  @page {
+    margin: 0;
+    size: auto;
+  }
 
-    /* Esconde botões, menu e navegação */
-    .action-button, a[href^="/"], nav, button, .main-nav {
-        display: none !important;
-    }
+  /* Garante que o corpo ocupe tudo e remove margens padrão do navegador */
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    height: 100%;
+  }
 
-    /* Reseta o layout para ocupar a folha toda */
-    .container, .ranking-section {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-
-    /* Ajustes visuais para papel */
-    h1, h2, h3, h4 { color: #000 !important; }
-    ol li { color: #000 !important; border-bottom: 1px solid #ccc !important; }
-    
-    /* Evita quebra de página no meio de nomes */
-    li, .podium-spot { break-inside: avoid; }
-
-    /* Cores específicas dos times na impressão */
-    .text-alpha { color: #1e3a8a !important; }
-    .text-omega { color: #b91c1c !important; }
+  /* Opcional: Esconde cabeçalho/rodapé padrão do navegador (data, url, etc) */
+  /* Nota: Nem todos os navegadores respeitam isso via CSS, às vezes precisa desmarcar na janela de impressão */
+  header, footer {
+    display: none;
+  }
 }

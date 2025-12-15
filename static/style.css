@@ -383,63 +383,61 @@ li:last-child {
     border-color: var(--primary-green); 
     color: var(--primary-green);     
 }
-media print {
-  /* 1. Configurações da Página (Remove margens brancas) */
+@media print {
+  /* 1. Configurações da Página */
   @page {
     margin: 0;
     size: auto;
   }
 
-  /* 2. Reset Global de Cores para Impressão */
+  /* 2. Forçar o visual do site (Dark Mode) */
   body, html {
     margin: 0 !important;
     padding: 0 !important;
     width: 100%;
     height: 100%;
-    /* Garante fundo branco para economizar tinta e dar contraste, 
-       OU mude para as cores escuras se preferir manter o visual dark */
-    background-color: #fff !important; 
+    
+    /* AQUI ESTÁ O SEGREDINHO: Força a cor de fundo ESCURA */
+    background-color: #111 !important; /* Ou a cor exata do seu site, ex: var(--bg-color) */
+    
+    /* Obriga o navegador a renderizar as cores exatas (não branquear) */
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* 3. FORÇAR VISIBILIDADE DO TEXTO (Aqui resolve o "apagado") */
+  /* 3. Ajuste de Textos para ficarem BRANCOS e VISÍVEIS */
   body * {
     visibility: visible !important;
-    color: #000 !important; /* Força TODO texto a ser preto */
-    opacity: 1 !important;  /* Remove transparências */
-    text-shadow: none !important; /* Remove sombras que borram na impressão */
+    color: #ffffff !important; /* Texto Branco Puro */
+    text-shadow: none !important;
+  }
+  
+  /* Mantendo as cores dos times (ajustadas para brilhar no fundo escuro) */
+  .text-alpha, .text-alpha * { color: #60a5fa !important; } /* Azul claro neon */
+  .text-omega, .text-omega * { color: #f87171 !important; } /* Vermelho claro neon */
+  #bat-vencedor { color: #4ade80 !important; } /* Verde claro neon */
+
+  /* Títulos e bordas */
+  h1, h2, h3, h4, strong {
+    color: #ffffff !important;
+  }
+  
+  /* Borda dos cards (se tiver borda, colocar clara) */
+  .ranking-section > div {
+    border-color: #444 !important;
   }
 
-  /* Exceção: Se você quer manter as cores dos times (azul/vermelho) no PDF,
-     use isso. Se preferir tudo preto, apague este bloco abaixo. */
-  .text-alpha, .text-alpha * { color: #2563eb !important; } /* Azul mais escuro/visível */
-  .text-omega, .text-omega * { color: #dc2626 !important; } /* Vermelho mais escuro/visível */
-  #bat-vencedor { color: #16a34a !important; } /* Verde escuro */
-
-
-  /* 4. Esconde botões e links */
+  /* 4. Esconde botões que não devem sair */
   #btn-pdf-semana-passada, 
   a[href="/historico-questoes"] {
     display: none !important;
   }
 
-  /* 5. Ajustes de Layout */
+  /* 5. Layout Full Width */
   .container, .ranking-section {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
     padding: 20px !important;
-    border: none !important; /* Remove bordas cinzas se houver */
-  }
-
-  /* Remove o fundo escuro dos cards para economizar tinta e melhorar leitura (opcional) */
-  .ranking-section > div {
-    background-color: transparent !important;
-    border: 1px solid #000 !important; /* Troca borda cinza por preta */
-  }
-  
-  h3, h4 {
-    color: #000 !important; /* Garante títulos pretos */
   }
 }

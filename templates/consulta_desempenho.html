@@ -1,119 +1,45 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Desempenho - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Estilos Específicos para esta página */
-        .resumo-cards {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .card-dado {
-            flex: 1;
-            min-width: 200px;
-            background-color: var(--input-bg);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .card-dado h3 {
-            font-size: 0.9em;
-            color: #aaa;
-            margin-bottom: 10px;
-            border: none;
-            padding: 0;
-        }
-
-        .card-valor {
-            font-size: 2em;
-            font-weight: bold;
-            color: var(--text-headings);
-        }
-
-        .valor-verde { color: var(--primary-green); }
-        .valor-azul { color: #3b82f6; }
-
-        /* --- ATUALIZAÇÃO AQUI --- */
-        /* Aumentamos a altura para 550px para comportar melhor muitos dados */
-        .grafico-container {
-            position: relative;
-            background-color: var(--card-dark);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 30px;
-            height: 550px; /* <--- MUDANÇA: Aumentado de 400px para 550px */
-            width: 100%;
-        }
-
-        /* Tabela de Dados Diários */
-        .tabela-diaria {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: var(--input-bg);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .tabela-diaria th, .tabela-diaria td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .tabela-diaria th {
-            background-color: #333;
-            color: var(--primary-green);
-            font-weight: bold;
-        }
-
-        .tabela-diaria tr:last-child td { border-bottom: none; }
-        .tabela-diaria tr:hover { background-color: rgba(255,255,255,0.05); }
-
-    </style>
 </head>
+
 <body>
     <h1>Consulta Individual de Desempenho</h1>
 
-    <div class="container" style="flex-direction: column;">
-        
-        <section class="form-section" style="width: 100%; max-width: 1200px; margin-bottom: 20px;">
-            <form id="form-consulta" style="flex-direction: row; flex-wrap: wrap; align-items: flex-end;">
-                <div style="flex: 1; min-width: 200px;">
+    <div class="container container-column">
+
+        <section class="form-section w-full max-w-1200 mb-20">
+            <form id="form-consulta" class="flex-row-wrap flex-row-end">
+                <div class="flex-1 min-w-200">
                     <label for="aluno">Selecione o Aluno:</label>
                     <select id="aluno" required>
                         <option value="">Carregando...</option>
                     </select>
                 </div>
-                
-                <div style="flex: 1; min-width: 150px;">
+
+                <div class="flex-1 min-w-150">
                     <label for="inicio">Data Início:</label>
                     <input type="date" id="inicio" required>
                 </div>
 
-                <div style="flex: 1; min-width: 150px;">
+                <div class="flex-1 min-w-150">
                     <label for="fim">Data Fim:</label>
                     <input type="date" id="fim" required>
                 </div>
 
-                <button type="submit" style="height: 48px; margin-bottom: 1px;">Consultar</button>
+                <button type="submit" class="h-48 mb-1">Consultar</button>
             </form>
         </section>
 
-        <section id="area-resultados" style="width: 100%; max-width: 1200px; display: none;">
-            
-            <h2 id="titulo-resultado" style="margin-bottom: 20px;">Resultado: ---</h2>
+        <section id="area-resultados" class="w-full max-w-1200 display-none">
+
+            <h2 id="titulo-resultado" class="mb-20">Resultado: ---</h2>
 
             <div class="resumo-cards">
                 <div class="card-dado">
@@ -145,24 +71,24 @@
                     </tr>
                 </thead>
                 <tbody id="tabela-corpo">
-                    </tbody>
+                </tbody>
             </table>
 
         </section>
     </div>
 
-    <a href="/" style="margin-top: 30px; font-weight: bold;">Voltar para o Menu</a>
+    <a href="/" class="link-back-center">Voltar para o Menu</a>
 
     <script>
         // --- 1. Configuração Inicial ---
-        let meuGrafico = null; 
+        let meuGrafico = null;
         const selectAluno = document.getElementById('aluno');
         const areaResultados = document.getElementById('area-resultados');
 
         const hoje = new Date();
         const semanaPassada = new Date();
         semanaPassada.setDate(hoje.getDate() - 7);
-        
+
         document.getElementById('fim').value = hoje.toISOString().split('T')[0];
         document.getElementById('inicio').value = semanaPassada.toISOString().split('T')[0];
 
@@ -189,12 +115,12 @@
             const inicio = document.getElementById('inicio').value;
             const fim = document.getElementById('fim').value;
 
-            if(!alunoId) { alert("Selecione um aluno!"); return; }
+            if (!alunoId) { alert("Selecione um aluno!"); return; }
 
             try {
                 const url = `/api/consulta/desempenho?aluno_id=${alunoId}&inicio=${inicio}&fim=${fim}`;
                 const res = await fetch(url);
-                
+
                 if (!res.ok) {
                     const err = await res.json();
                     alert(err.erro || "Erro na consulta");
@@ -211,20 +137,20 @@
         function renderizarResultados(dados) {
             areaResultados.style.display = 'block';
             document.getElementById('titulo-resultado').textContent = `Desempenho: ${dados.aluno_nome}`;
-            
+
             document.getElementById('res-total').textContent = dados.total_questoes;
             document.getElementById('res-acertos').textContent = dados.total_acertos;
             document.getElementById('res-percentual').textContent = dados.percentual_total + '%';
 
             const tbody = document.getElementById('tabela-corpo');
             tbody.innerHTML = '';
-            
+
             const labelsGrafico = [];
             const dadosQuestoes = [];
             const dadosAcertos = [];
 
             if (dados.dados_diarios.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhum registro no período.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum registro no período.</td></tr>';
             } else {
                 dados.dados_diarios.forEach(dia => {
                     const dataFormatada = dia.data.split('-').reverse().join('/');
@@ -233,11 +159,12 @@
                     dadosAcertos.push(dia.acertos);
 
                     const tr = document.createElement('tr');
+                    const corPercentual = dia.percentual >= 80 ? 'var(--primary-green)' : '#fff';
                     tr.innerHTML = `
                         <td>${dataFormatada}</td>
                         <td>${dia.questoes}</td>
                         <td>${dia.acertos}</td>
-                        <td style="color: ${dia.percentual >= 80 ? 'var(--primary-green)' : '#fff'}">
+                        <td style="color: ${corPercentual}">
                             ${dia.percentual}%
                         </td>
                     `;
@@ -281,7 +208,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, 
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -301,4 +228,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking Geral - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
     <h1>Ranking Geral (All-Time)</h1>
 
-    <div class="container" style="flex-direction: column; align-items: center; gap: 30px;">
-        <section id="card-ranking-geral" class="ranking-section" style="width: 100%; max-width: 800px;">
+    <div class="container container-column-center flex-gap-30">
+        <section id="card-ranking-geral" class="ranking-section w-full max-w-800">
             <h2>Ranking Geral (09/10/25 - Hoje)</h2>
-            
+
             <h3>🏆 Top 3 - Quantidade</h3>
             <div class="ranking-podium" id="podium-quantidade-geral">
                 <div class="podium-spot spot-2">
@@ -34,7 +36,7 @@
             <h4>Demais Colocações (Quantidade):</h4>
             <ol id="ranking-quantidade-geral-lista"></ol>
 
-            <h3 style="margin-top: 40px;">📊 Top 3 - % de Acerto</h3>
+            <h3 class="mt-40">📊 Top 3 - % de Acerto</h3>
             <div class="ranking-podium" id="podium-percentual-geral">
                 <div class="podium-spot spot-2">
                     <div class="podium-rank">#2</div>
@@ -57,7 +59,8 @@
         </section>
     </div>
 
-    <a href="/historico-questoes" style="margin-top: 20px; font-weight: bold;">Voltar ao Histórico</a>
+    <a href="/historico-questoes" class="link-back">Voltar ao Histórico</a>
     <script src="{{ url_for('static', filename='ranking_geral.js') }}"></script>
 </body>
+
 </html>

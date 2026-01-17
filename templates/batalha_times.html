@@ -4,64 +4,19 @@
     <meta charset="UTF-8">
     <title>Batalha de Times - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        /* Estilos Gerais */
-        .battle-container { display: flex; gap: 20px; width: 100%; max-width: 1000px; margin-top: 20px; }
-        .team-card { flex: 1; padding: 20px; border-radius: 10px; text-align: center; color: white; position: relative; overflow: hidden; }
-        
-        /* Cores dos Times */
-        .alpha-card { background: linear-gradient(135deg, #1e3a8a, #3b82f6); border: 2px solid #60a5fa; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
-        .omega-card { background: linear-gradient(135deg, #7f1d1d, #ef4444); border: 2px solid #fca5a5; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
-        
-        /* Tipografia dos Cards */
-        .score-big { font-size: 3em; font-weight: bold; margin: 10px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .stat-label { font-size: 0.9em; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
-        .vs-badge { font-size: 2.5em; font-weight: 900; align-self: center; color: var(--primary-green); text-shadow: 0 0 10px rgba(0, 255, 127, 0.5); font-style: italic; }
-
-        /* --- NOVA SEÇÃO: RANKINGS INDIVIDUAIS --- */
-        .rankings-wrapper {
-            display: flex; gap: 20px; width: 100%; max-width: 1000px; margin-top: 30px;
-        }
-        .ranking-col {
-            flex: 1;
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid #444;
-        }
-        .ranking-col h3 { text-align: center; margin-bottom: 15px; font-size: 1.2em; border-bottom: 2px solid; padding-bottom: 10px; }
-        
-        /* Cores específicas dos títulos das listas */
-        .alpha-title { color: #60a5fa; border-color: #60a5fa !important; }
-        .omega-title { color: #fca5a5; border-color: #fca5a5 !important; }
-
-        .membro-list { list-style: none; padding: 0; margin: 0; }
-        .membro-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; margin-bottom: 5px; background-color: rgba(255,255,255,0.03);
-            border-radius: 5px; border-left: 3px solid transparent; transition: transform 0.2s;
-        }
-        .membro-item:hover { transform: translateX(5px); background-color: rgba(255,255,255,0.08); }
-        
-        .alpha-item { border-left-color: #3b82f6; }
-        .omega-item { border-left-color: #ef4444; }
-
-        .membro-qtd { font-weight: bold; font-size: 1.1em; }
-        .membro-nome { font-size: 0.95em; color: #eee; }
-    </style>
 </head>
 <body>
     <h1>Batalha de Pelotões (Semanal)</h1>
     
-    <div class="container" style="flex-direction: column; align-items: center;">
+    <div class="container container-column-center">
         
         <div class="battle-container">
             <div class="team-card alpha-card">
                 <h2>PELOTÃO ALPHA</h2>
                 <div class="score-big" id="alpha-questoes">0</div>
                 <div class="stat-label">Questões Realizadas</div>
-                <hr style="opacity: 0.3; margin: 15px 0;">
-                <div style="font-size: 1.5em;" id="alpha-precisao">0%</div>
+                <hr class="hr-divider">
+                <div class="font-size-15em" id="alpha-precisao">0%</div>
                 <div class="stat-label">Precisão de Acertos</div>
             </div>
 
@@ -71,8 +26,8 @@
                 <h2>PELOTÃO OMEGA</h2>
                 <div class="score-big" id="omega-questoes">0</div>
                 <div class="stat-label">Questões Realizadas</div>
-                <hr style="opacity: 0.3; margin: 15px 0;">
-                <div style="font-size: 1.5em;" id="omega-precisao">0%</div>
+                <hr class="hr-divider">
+                <div class="font-size-15em" id="omega-precisao">0%</div>
                 <div class="stat-label">Precisão de Acertos</div>
             </div>
         </div>
@@ -93,12 +48,12 @@
             </div>
         </div>
         
-        <button onclick="carregarPlacar()" style="margin-top: 30px; padding: 12px 25px; cursor: pointer; font-size: 1em; font-weight: bold; background-color: var(--input-bg); color: white; border: 1px solid #666; border-radius: 5px;">
+        <button onclick="carregarPlacar()" class="btn-refresh">
             🔄 Atualizar Placar
         </button>
     </div>
 
-    <a href="/" style="margin-top: 20px; font-weight: bold;">Voltar para a Página Principal</a>
+    <a href="/" class="link-back">Voltar para a Página Principal</a>
 
     <script>
         async function carregarPlacar() {
@@ -125,7 +80,7 @@
             ul.innerHTML = ''; // Limpa a lista
 
             if (lista.length === 0) {
-                ul.innerHTML = '<li style="text-align:center; color:#777; padding:10px;">Nenhum registro essa semana</li>';
+                ul.innerHTML = '<li class="li-center-gray">Nenhum registro essa semana</li>';
                 return;
             }
 
@@ -134,13 +89,13 @@
                 li.className = `membro-item ${itemClass}`;
                 
                 // Adiciona medalhas para o Top 3
-                let prefixo = `<span style="font-weight:bold; color:#777; width:20px;">${index + 1}.</span>`;
+                let prefixo = `<span class="span-prefix-bold">${index + 1}.</span>`;
                 if (index === 0) prefixo = '🥇';
                 if (index === 1) prefixo = '🥈';
                 if (index === 2) prefixo = '🥉';
 
                 li.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="flex-align-gap">
                         ${prefixo}
                         <span class="membro-nome">${membro.nome}</span>
                     </div>

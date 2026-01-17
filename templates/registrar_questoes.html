@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Questões - Mentoria Odisseia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
     <h1>Registrar Desempenho (Questões)</h1>
 
-    <div class="container" style="gap: 40px;"> <section class="form-section" style="flex: 1;">
+    <div class="container flex-gap-40">
+        <section class="form-section flex-1">
             <h2>Novo Registro</h2>
             <form id="registro-form">
                 <label for="aluno-select">Aluno:</label>
@@ -27,18 +30,19 @@
             </form>
         </section>
 
-        <section class="info-column" style="flex: 2;">
-             <div class="recent-section">
-                 <h3>Últimos Lançamentos (Cuidado ao apagar!!)</h3>
-                 <ul id="ultimos-lancamentos">
-                     <li>Carregando...</li>
-                 </ul>
-             </div>
+        <section class="info-column flex-2">
+            <div class="recent-section">
+                <h3>Últimos Lançamentos (Cuidado ao apagar!!)</h3>
+                <ul id="ultimos-lancamentos">
+                    <li>Carregando...</li>
+                </ul>
+            </div>
         </section>
     </div>
 
-    <a href="/" style="display: block; text-align: center; margin-top: 30px; font-weight: bold;">Voltar para os Rankings</a>
+    <a href="/" class="link-back-center">Voltar para os Rankings</a>
 
     <script src="{{ url_for('static', filename='registrar_questoes.js') }}"></script>
 </body>
+
 </html>
